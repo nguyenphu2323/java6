@@ -40,7 +40,7 @@ public class CartController {
 	}
 
 	@ResponseBody
-	@PostMapping("/cartItem")
+	@PostMapping("/cartIte")
 	public ResponseEntity<Object> cartItem(@RequestBody CartItemRequest cartItemRequest) {
 		Map<String, String> response = new HashMap<>();
 		try {
