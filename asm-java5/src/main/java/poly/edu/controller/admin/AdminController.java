@@ -22,7 +22,7 @@ public class AdminController {
 	@Autowired
 	private HttpSession session;
 
-	@GetMapping("/admin")
+	@GetMapping("/admin/home") // test
 	public String home(Model model) {
 		Users currentUser = (Users) session.getAttribute("currentUser");
 		if (currentUser == null || !currentUser.isVaitro()) {
