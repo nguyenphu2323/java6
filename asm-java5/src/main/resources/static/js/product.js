@@ -12,7 +12,7 @@ const productTitleElement = document.querySelector(".title");
 const REQUIRED_SIGNIN_MESSAGE = "Vui lòng đăng nhập để thực hiện thao tác!";
 const SUCCESS_ADD_CART_ITEM_MESSAGE = (quantity, productTitle) =>
   `Đã thêm thành công ${quantity} sản phẩm ${productTitle} vào giỏ hàng!`;
-const FAILED_ADD_CART_ITEM_MESSAGE = "Đã có lỗi truy vấn!";
+const FAILED_ADD_CART_ITEM_MESSAGE = "Sản phẩm vượt quá số lượng tồn kho!";
 
 // UTILS
 async function _fetchPostAddCartItem() {

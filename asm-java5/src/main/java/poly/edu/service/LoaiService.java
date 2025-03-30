@@ -34,12 +34,20 @@ public class LoaiService {
 		Optional<Loai> optionalLoai = loaiRepository.findById(id);
 		if (optionalLoai.isPresent()) {
 			Loai loai = optionalLoai.get();
+	
+			// Kiểm tra xem tên loại mới có bị trùng với loại khác không
+			Optional<Loai> existingLoaiByName = loaiRepository.findByTenLoai(updatedLoai.getTenLoai());
+			if (existingLoaiByName.isPresent() && !existingLoaiByName.get().getIdLoai().equals(id)) {
+				throw new IllegalArgumentException("Tên loại này đã được sử dụng!");
+			}
+	
 			loai.setTenLoai(updatedLoai.getTenLoai());
 			return loaiRepository.save(loai);
 		} else {
 			throw new RuntimeException("Không tìm thấy mã loại!");
 		}
 	}
+	
 
 	public Page<Loai> getAllLoai(int pageNumber, int limit) {
 		PageRequest pageable = PageRequest.of(pageNumber, limit);
