@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh Sửa Tài Khoản</title>
+    <th:block th:replace="~{user/_meta}" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <th:block th:replace="~{user/_header}" />
+    
+    <section class="section-pagetop bg-light">
+        <div class="container">
+            <h2 class="title-page">Chỉnh Sửa Tài Khoản</h2>
+        </div>
+    </section>
+    
+    <section class="section-content padding-y">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white mb-3 d-flex justify-content-center">
+                            <h4 class="mb-0">Thông Tin Tài Khoản</h4>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/account/update}" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label class="form-label">Ảnh đại diện</label>
+                                    <input type="file" class="form-control" name="hinh">
+                                    <div class="mt-2 text-center">
+                                        <img class="rounded-circle" style="object-fit: cover" width="200" height="200" 
+                                        th:src="@{/image/{url}(url=${account.hinh})}" 
+                                        alt="Ảnh tài khoản">                                       
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tên đăng nhập</label>
+                                    <input type="text" class="form-control" name="idUser" th:value="${account.idUser}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Họ Tên</label>
+                                    <input type="text" class="form-control" name="hoten" th:value="${account.hoten}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="text" class="form-control" name="sdt" th:value="${account.sdt}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mật khẩu</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" name="matkhau" id="passwordInput" th:value="${account.matkhau}" required>
+                                        <button type="button" class="btn btn-outline-secondary" 
+                                            onclick="passwordInput.type = (passwordInput.type === 'password') ? 'text' : 'password'">
+                                            👁️
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 d-flex justify-content-center">                                    
+                                    <button type="submit" class="btn btn-dark">Lưu Thay Đổi</button>
+                                </div>                                
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <th:block th:replace="~{user/_footer}" />
+</body>
+</html>

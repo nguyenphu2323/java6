@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <th:block th:replace="~{user/_meta}" />
+  <title>Trang chủ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <style>
+    /* Nền và font chữ */
+    body {
+      background-color: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Card sản phẩm */
+    .card {
+      border-radius: 10px;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Tiêu đề */
+    .section-title {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    /* Nút bấm */
+    .btn-custom {
+      background-color: #3498db;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .btn-custom:hover {
+      background-color: #217dbb;
+    }
+
+    /* Giá sản phẩm */
+    .price {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .old-price {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    /* Badge giảm giá */
+    .badge-sale {
+      background-color: #ff4757;
+      color: white;
+      font-size: 0.9rem;
+      padding: 5px 8px;
+      border-radius: 5px;
+    }
+
+    /* Ảnh sản phẩm */
+    .img-wrap img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    /* Link */
+    a {
+      text-decoration: none;
+      color: black;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: #3498db;
+    }
+  </style>
+</head>
+
+<body>
+  <th:block th:replace="~{user/_header}" />
+
+  <!-- Danh mục sản phẩm -->
+  <section class="section-content mb-4">
+    <div class="container">
+      <header class="section-heading py-4 d-flex justify-content-between align-items-center">
+        <h3 class="section-title">Danh mục sản phẩm</h3>
+        <a class="btn btn-custom" th:href="@{/category-all}">Xem tất cả</a>
+      </header>
+      <div class="row row-cols-2 row-cols-md-4 g-4">
+        <div th:each="loai : ${loais}" class="col">
+          <div class="card h-100 p-3 text-center">
+            <a th:href="@{/sanpham-theo-loai(idLoai=${loai.idLoai})}" class="stretched-link">
+              <span class="fw-bold fs-5" th:text="${loai.tenLoai}"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- user/home.html -->
+<section class="section-content mb-5">
+  <div class="container">
+      <header class="section-heading py-4 d-flex justify-content-between align-items-center">
+          <h3 class="section-title">Sản phẩm mới nhất</h3>
+      </header>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+          <!-- Hiển thị danh sách sản phẩm -->
+          <div th:each="sanpham : ${sanphams}" class="col">
+              <div class="card h-150 p-3">
+                  <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="img-wrap text-center">
+                      <img class="img-fluid" th:src="@{/image/{url}(url=${sanpham.hinh})}" th:alt="${sanpham.tenSanpham}" />
+                  </a>
+                  <figcaption class="info-wrap mt-2 text-center">
+                      <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="title d-block fw-bold" th:text="${sanpham.tenSanpham}"></a>
+                      <div class="mt-2">
+                          <span class="price">
+                              <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
+                          </span>
+                          <span th:if="${sanpham.giamgia > 0}" class="ms-2 old-price">
+                              <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
+                          </span>
+                          <span th:if="${sanpham.giamgia > 0}" class="badge-sale ms-2">
+                              -<span th:text="${sanpham.giamgia}"></span>%
+                          </span>
+                      </div>
+                  </figcaption>
+              </div>
+          </div>
+      </div>
+      <!-- Phân trang -->
+      <nav aria-label="Page navigation example" class="mt-4 d-flex justify-content-center">
+          <ul class="pagination">
+              <!-- Nút Previous -->
+              <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                  <a class="page-link" th:href="@{/(page=${currentPage - 1}, size=${pageSize})}">Previous</a>
+              </li>
+              <!-- Các nút trang -->
+              <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                  <a class="page-link" th:href="@{/(page=${i}, size=${pageSize})}" th:text="${i + 1}"></a>
+              </li>
+              <!-- Nút Next -->
+              <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                  <a class="page-link" th:href="@{/(page=${currentPage + 1}, size=${pageSize})}">Next</a>
+              </li>
+          </ul>
+      </nav>
+  </div>
+</section>
+  
+
+  <th:block th:replace="~{user/_footer}" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
