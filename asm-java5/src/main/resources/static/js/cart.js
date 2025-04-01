@@ -3,6 +3,8 @@ import { setTotalCartItemsQuantity } from "./header.js";
 
 // STATIC DATA
 const currentUserIdMetaTag = document.querySelector("meta[name='currentUserId']");
+console.log("User ID:", currentUserIdMetaTag?.content);
+
 const deliveryMethodInputValues = {
   "1": {
     deliveryMethod: 1,
@@ -27,6 +29,7 @@ const deliveryPriceRootElement = document.querySelector("#delivery-price");
 const totalPriceRootElement = document.querySelector("#total-price");
 const checkoutBtnElement = document.querySelector("#checkoutBtn");
 const deliveryMethodRadioElements = [...document.querySelectorAll("input[name='delivery-method']")];
+const orderMessageElement = document.querySelector("#orderMessage");
 
 // COMPONENTS
 function cartItemRowComponent(props) {
@@ -119,7 +122,7 @@ function loadingComponent() {
   return `
     <div class="d-flex justify-content-center p-5">
       <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Đang tải...</span>
+        <span class="visually-hidden">Đang tải...</span>
       </div>
     </div>
   `;
@@ -127,7 +130,7 @@ function loadingComponent() {
 
 // UTILS
 async function _fetchGetCart() {
-  const response = await fetch("/cartItem?userId=" + currentUserIdMetaTag.content, {
+  const response = await fetch(`/cartItem?userId=${currentUserIdMetaTag.content}`, {
     method: "GET",
     headers: {
       "Accept": "application/json",
@@ -138,7 +141,7 @@ async function _fetchGetCart() {
 }
 
 async function _fetchDeleteCartItem(cartItemId, productId) {
-  const response = await fetch("/cartItem?cartItemId=" + cartItemId + "&productId=" + productId, {
+  const response = await fetch(`/cartItem?cartItemId=${cartItemId}&productId=${productId}`, {
     method: "DELETE",
     headers: {
       "Accept": "application/json",
@@ -150,11 +153,11 @@ async function _fetchDeleteCartItem(cartItemId, productId) {
 
 async function _fetchUpdateCartItem(cartItemId, quantity, productId) {
   const cartItemRequest = {
-	productId: productId,
+    productId: productId,
     quantity: quantity,
   };
 
-  const response = await fetch("/cartItem?cartItemId=" + cartItemId, {
+  const response = await fetch(`/cartItem?cartItemId=${cartItemId}`, {
     method: "PUT",
     headers: {
       "Accept": "application/json",
@@ -167,28 +170,12 @@ async function _fetchUpdateCartItem(cartItemId, quantity, productId) {
 }
 
 async function _fetchPostAddOrder() {
-  const orderItems = state.cart.cartItems.map((cartItem) => ({
-    productId: cartItem.productId,
-    price: cartItem.productPrice,
-    discount: cartItem.productDiscount,
-    quantity: cartItem.quantity,
-  }));
-
-  const orderRequest = {
-    cartId: state.cart.id,
-    userId: currentUserIdMetaTag.content,
-    deliveryMethod: state.order.deliveryMethod,
-    deliveryPrice: state.order.deliveryPrice,
-    orderItems: orderItems,
-  };
-
-  const response = await fetch(contextPathMetaTag.content + "/cart", {
+  const response = await fetch(`/checkout?userId=${currentUserIdMetaTag.content}`, {
     method: "POST",
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(orderRequest),
   });
 
   return [response.status, await response.json()];
@@ -214,9 +201,19 @@ const state = {
   cart: { ...initialCart },
   order: { ...initialOrder },
   initState: async () => {
+    if (!currentUserIdMetaTag || !currentUserIdMetaTag.content) {
+      cartTableRootElement.innerHTML = '<p>Vui lòng đăng nhập để xem giỏ hàng.</p>';
+      checkoutBtnElement.disabled = true;
+      return;
+    }
+
     const [status, data] = await _fetchGetCart();
     if (status === 200) {
-      state.cart = data;
+      state.cart = {
+        id: data.cartId || 0,
+        userId: currentUserIdMetaTag.content,
+        cartItems: data.cartItems || data
+      };
       render();
       attachEventHandlersForNoneRerenderElements();
     } else if (status === 404) {
@@ -238,10 +235,10 @@ const state = {
   },
   updateCartItem: async (currentCartItem, quantity) => {
     if (currentCartItem.quantity !== quantity) {
-	  if(quantity <= 0){
-		  createToast(toastComponent("Vui lòng nhập số lượng hợp lệ", "danger")); 
-		  return;
-	  }
+      if (quantity <= 0) {
+        createToast(toastComponent("Vui lòng nhập số lượng hợp lệ", "danger"));
+        return;
+      }
       const [status] = await _fetchUpdateCartItem(currentCartItem.cartId, quantity, currentCartItem.productId);
       if (status === 200) {
         state.cart.cartItems = state.cart.cartItems.map((cartItem) => {
@@ -256,20 +253,26 @@ const state = {
     }
   },
   checkoutCart: async () => {
-    if (confirm("Bạn có muốn đặt hàng?")) {
-        state.cart = { ...initialCart }; // Xóa giỏ hàng ngay lập tức
-        render(); // Cập nhật giao diện ngay
-
-        const [status] = await _fetchPostAddOrder();
-        if (status === 200) {
-            createToast(toastComponent(SUCCESS_ADD_ORDER_MESSAGE, "success"));
-        } else {
-            createToast(toastComponent(FAILED_OPERATION_MESSAGE, "danger"));
-        }
-
-        setTotalCartItemsQuantity(state.cart); // Cập nhật lại số lượng sản phẩm trong giỏ hàng
+    if (state.cart.cartItems.length === 0) {
+      createToast(toastComponent("Giỏ hàng của bạn đang trống!", "danger"));
+      return;
     }
 
+    if (confirm("Bạn có muốn đặt hàng?")) {
+      const [status, response] = await _fetchPostAddOrder();
+      if (status === 200) {
+        createToast(toastComponent(SUCCESS_ADD_ORDER_MESSAGE, "success"));
+        // Xóa giỏ hàng sau khi đặt hàng thành công
+        state.cart = { ...initialCart };
+        render();
+        setTotalCartItemsQuantity(state.cart);
+        // Cập nhật giao diện
+        cartTableRootElement.style.display = "none";
+        orderMessageElement.style.display = "block";
+      } else {
+        createToast(toastComponent(response.message || FAILED_OPERATION_MESSAGE, "danger"));
+      }
+    }
   },
   changeDeliveryMethod: (deliveryMethodValue) => {
     if (state.order.deliveryMethod !== Number(deliveryMethodValue)) {
@@ -314,16 +317,20 @@ function render() {
   // Attach event handlers for delete cart item buttons
   state.cart.cartItems.forEach((cartItem) => {
     const deleteCartItemBtnElement = document.querySelector(`#delete-cart-item-${cartItem.id}`);
-    deleteCartItemBtnElement.addEventListener("click", () => state.deleteCartItem(cartItem));
+    if (deleteCartItemBtnElement) {
+      deleteCartItemBtnElement.addEventListener("click", () => state.deleteCartItem(cartItem));
+    }
   });
 
   // Attach event handlers for update cart item buttons
   state.cart.cartItems.forEach((cartItem) => {
     const updateCartItemBtnElement = document.querySelector(`#update-cart-item-${cartItem.id}`);
-    updateCartItemBtnElement.addEventListener("click", () => {
-      const quantityCartItemInputElement = document.querySelector(`#quantity-cart-item-${cartItem.id}`);
-      void state.updateCartItem(cartItem, Number(quantityCartItemInputElement.value));
-    });
+    if (updateCartItemBtnElement) {
+      updateCartItemBtnElement.addEventListener("click", () => {
+        const quantityCartItemInputElement = document.querySelector(`#quantity-cart-item-${cartItem.id}`);
+        void state.updateCartItem(cartItem, Number(quantityCartItemInputElement.value));
+      });
+    }
   });
 }
 
@@ -342,39 +349,3 @@ if (currentUserIdMetaTag) {
   cartTableRootElement.innerHTML = loadingComponent();
   void state.initState();
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  const checkoutBtn = document.getElementById("checkoutBtn");
-
-  if (checkoutBtn) {
-      checkoutBtn.addEventListener("click", async function () {
-          await placeOrder();
-      });
-  }
-});
-
-async function placeOrder() {
-  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-
-  if (cartItems.length === 0) {
-      alert("Giỏ hàng trống!");
-      return;
-  }
-
-  const response = await fetch("/checkout", {
-      method: "POST",
-      headers: {
-          "Content-Type": "application/json",
-      },
-      body: JSON.stringify(cartItems),
-  });
-
-  if (response.ok) {
-      alert("Đặt hàng thành công!");
-      localStorage.removeItem("cart"); // Xóa giỏ hàng sau khi đặt hàng
-      window.location.href = "/order-success"; // Điều hướng đến trang xác nhận đơn hàng
-  } else {
-      alert("Có lỗi xảy ra khi đặt hàng!");
-  }
-}
-

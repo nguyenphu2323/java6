@@ -1,5 +1,6 @@
 package poly.edu.controller.user;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,93 +29,108 @@ import poly.edu.service.UserService;
 
 @Controller
 public class CartController {
-	@Autowired
-	GioHangChiTietService gioHangChiTietService;
-	@Autowired
-	UserService userService;
-	@Autowired
-	SanPhamService sanPhamService;
+    @Autowired
+    GioHangChiTietService gioHangChiTietService;
+    @Autowired
+    UserService userService;
+    @Autowired
+    SanPhamService sanPhamService;
 
-	@GetMapping("/cart")
-	public String cart(Model model) {
-		return "user/cart";
-	}
+    @GetMapping("/cart")
+    public String cart(Model model) {
+        return "user/cart";
+    }
 
-	@ResponseBody
-	@PostMapping("/cartItem")
-	public ResponseEntity<Object> cartItem(@RequestBody CartItemRequest cartItemRequest) {
-		Map<String, String> response = new HashMap<>();
-		try {
-			gioHangChiTietService.add(cartItemRequest);
-			response.put("message", "Đã thêm sản phẩm vào giỏ hàng thành công!");
-			return ResponseEntity.status(200).body(response);
-		} catch (Exception e) {
-			response.put("message", "Đã có lỗi truy vấn!");
-			return ResponseEntity.status(404).body(response);
-		}
-	}
+    @ResponseBody
+    @PostMapping("/cartItem")
+    public ResponseEntity<Object> cartItem(@RequestBody CartItemRequest cartItemRequest) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            gioHangChiTietService.add(cartItemRequest);
+            response.put("message", "Đã thêm sản phẩm vào giỏ hàng thành công!");
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            response.put("message", "Đã có lỗi truy vấn!");
+            return ResponseEntity.status(404).body(response);
+        }
+    }
 
-	@ResponseBody
-	@GetMapping("/cartItem")
-	public ResponseEntity<Object> cartItem(@RequestParam(name = "userId") String id) {
-		try {
-			userService.getUserById(id);
-			AtomicInteger counter = new AtomicInteger(1);
-			Map<String, List<CartItemResponse>> response = new HashMap<>();
-			List<CartItemResponse> cartItemResponses = gioHangChiTietService.getAllByIdUser(id).stream()
-					.filter(item -> {
-						SanPham sanPham = sanPhamService.getSanPhamById(item.getSanPham().getIdSanpham());
-						if (sanPham.getSoluong() > 0) {
-							return true;
-						} else {
-							gioHangChiTietService.delete(item.getGioHang().getIdGiohang(), sanPham.getIdSanpham());
-							return false;
-						}
-					})
-					.map(item -> new CartItemResponse(counter.getAndIncrement(), item.getGioHang().getIdGiohang(),
-							item.getSanPham().getIdSanpham(), item.getSanPham().getTenSanpham(),
-							item.getSanPham().getGia(), item.getSanPham().getGiamgia(), item.getSanPham().getSoluong(),
-							item.getSanPham().getHinh(), item.getSoluong()))
-					.collect(Collectors.toList());
-			response.put("cartItems", cartItemResponses);
-			return ResponseEntity.status(200).body(response);
-		} catch (Exception e) {
-			Map<String, String> response = new HashMap<>();
-			response.put("message", "Đã có lỗi truy vấn!");
-			return ResponseEntity.status(404).body(response);
-		}
-	}
+    @ResponseBody
+    @GetMapping("/cartItem")
+    public ResponseEntity<Object> cartItem(@RequestParam(name = "userId") String id) {
+        try {
+            userService.getUserById(id);
+            AtomicInteger counter = new AtomicInteger(1);
+            Map<String, List<CartItemResponse>> response = new HashMap<>();
+            List<CartItemResponse> cartItemResponses = gioHangChiTietService.getAllByIdUser(id).stream()
+                    .filter(item -> {
+                        SanPham sanPham = sanPhamService.getSanPhamById(item.getSanPham().getIdSanpham());
+                        if (sanPham.getSoluong() > 0) {
+                            return true;
+                        } else {
+                            gioHangChiTietService.delete(item.getGioHang().getIdGiohang(), sanPham.getIdSanpham());
+                            return false;
+                        }
+                    })
+                    .map(item -> new CartItemResponse(counter.getAndIncrement(), item.getGioHang().getIdGiohang(),
+                            item.getSanPham().getIdSanpham(), item.getSanPham().getTenSanpham(),
+                            item.getSanPham().getGia(), item.getSanPham().getGiamgia(), item.getSanPham().getSoluong(),
+                            item.getSanPham().getHinh(), item.getSoluong()))
+                    .collect(Collectors.toList());
+            response.put("cartItems", cartItemResponses);
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đã có lỗi truy vấn!");
+            return ResponseEntity.status(404).body(response);
+        }
+    }
 
-	@ResponseBody
-	@PutMapping("/cartItem")
-	public ResponseEntity<Object> cartItem(@RequestBody CartItemRequest cartItemRequest,
-			@RequestParam(name = "cartItemId") Integer cartItemId) {
-		Map<String, String> response = new HashMap<>();
-		try {
-			gioHangChiTietService.update(cartItemRequest, cartItemId);
-			response.put("message", "Đã cập nhật số lượng của sản phẩm thành công!");
-			return ResponseEntity.status(200).body(response);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.put("message", "Đã có lỗi truy vấn!");
-			return ResponseEntity.status(404).body(response);
-		}
-	}
+    @ResponseBody
+    @PutMapping("/cartItem")
+    public ResponseEntity<Object> cartItem(@RequestBody CartItemRequest cartItemRequest,
+            @RequestParam(name = "cartItemId") Integer cartItemId) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            gioHangChiTietService.update(cartItemRequest, cartItemId);
+            response.put("message", "Đã cập nhật số lượng của sản phẩm thành công!");
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("message", "Đã có lỗi truy vấn!");
+            return ResponseEntity.status(404).body(response);
+        }
+    }
 
-	@ResponseBody
-	@DeleteMapping("/cartItem")
-	public ResponseEntity<Object> cartItem(@RequestParam(name = "cartItemId") Integer cartItemId,
-			@RequestParam(name = "productId") Integer productId) {
-		Map<String, String> response = new HashMap<>();
-		try {
-			gioHangChiTietService.delete(cartItemId, productId);
-			response.put("message", "Đã cập nhật số lượng của sản phẩm thành công!");
-			return ResponseEntity.status(200).body(response);
-		} catch (Exception e) {
-			response.put("message", "Đã có lỗi truy vấn!");
-			return ResponseEntity.status(404).body(response);
-		}
-	}
-	
+    @ResponseBody
+    @DeleteMapping("/cartItem")
+    public ResponseEntity<Object> cartItem(@RequestParam(name = "cartItemId") Integer cartItemId,
+            @RequestParam(name = "productId") Integer productId) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            gioHangChiTietService.delete(cartItemId, productId);
+            response.put("message", "Đã cập nhật số lượng của sản phẩm thành công!");
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            response.put("message", "Đã có lỗi truy vấn!");
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(@RequestParam(name = "userId") String userId) {
+        try {
+            System.out.println("User ID: " + userId); // In ra userId để kiểm tra
+            gioHangChiTietService.checkout(userId); // Kiểm tra xem có lỗi khi gọi phương thức này không
+            return ResponseEntity.ok(Collections.singletonMap("message", "Đặt hàng thành công!"));
+        } catch (RuntimeException e) {
+            System.out.println("RuntimeException: " + e.getMessage()); // In ra thông báo lỗi
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage()); // In ra thông báo lỗi
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Đã có lỗi xảy ra!"));
+        }
+    }
 }
-

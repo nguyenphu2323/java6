@@ -1,5 +1,6 @@
 package poly.edu.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,23 +11,37 @@ import poly.edu.entity.CartItemRequest;
 import poly.edu.entity.GioHang;
 import poly.edu.entity.GioHangChiTiet;
 import poly.edu.entity.GioHangChiTietId;
+import poly.edu.entity.HoaDon;
+import poly.edu.entity.HoaDonChiTiet;
+import poly.edu.entity.HoaDonChiTietId;
 import poly.edu.entity.SanPham;
-import poly.edu.repository.GioHangChiTietRepository;
-import poly.edu.repository.GioHangRepository;
-import poly.edu.repository.UsersRepository;
+import poly.edu.repository.*;
 
 @Service
 public class GioHangChiTietService {
+
+    private final HoaDonChiTietRepository hoaDonChiTietRepository;
+    private final HoaDonRepository hoaDonRepository;
+
     @Autowired
     UsersRepository usersRepository;
+
     @Autowired
     SanPhamService sanPhamService;
+
     @Autowired
     CartService cartService;
+
     @Autowired
     GioHangRepository gioHangRepository;
+
     @Autowired
     GioHangChiTietRepository gioHangChiTietRepository;
+
+    GioHangChiTietService(HoaDonRepository hoaDonRepository, HoaDonChiTietRepository hoaDonChiTietRepository) {
+        this.hoaDonRepository = hoaDonRepository;
+        this.hoaDonChiTietRepository = hoaDonChiTietRepository;
+    }
 
     // 🛒 Thêm sản phẩm vào giỏ hàng với kiểm tra tồn kho
     public void add(CartItemRequest itemRequest) throws IllegalArgumentException {
@@ -89,5 +104,47 @@ public class GioHangChiTietService {
     // 🔎 Lấy danh sách sản phẩm trong giỏ hàng của user
     public List<GioHangChiTiet> getAllByIdUser(String id) {
         return gioHangChiTietRepository.findByGioHang_Users_IdUser(id);
+    }
+
+    public void checkout(String userId) {
+        // Lấy giỏ hàng của người dùng
+        List<GioHangChiTiet> cartItems = gioHangChiTietRepository.findByGioHang_Users_IdUser(userId);
+        if (cartItems.isEmpty()) {
+            throw new RuntimeException("Giỏ hàng trống!");
+        }
+
+        // Tạo hóa đơn mới
+        HoaDon hoaDon = new HoaDon();
+        hoaDon.setUsers(usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại")));
+        hoaDon.setNgaytao(new Date());
+        hoaDon.setTrangthai("Chưa thanh toán");
+        hoaDon.setDiachi("Địa chỉ giao hàng"); // Thay đổi địa chỉ giao hàng nếu cần
+
+        // Lưu hóa đơn vào cơ sở dữ liệu
+        hoaDon = hoaDonRepository.save(hoaDon);
+
+        // Lưu từng sản phẩm trong giỏ hàng vào hóa đơn chi tiết
+        for (GioHangChiTiet item : cartItems) {
+            HoaDonChiTiet hoaDonChiTiet = new HoaDonChiTiet();
+
+            // Tạo composite key
+            HoaDonChiTietId id = new HoaDonChiTietId();
+            id.setIdHoadon(hoaDon.getIdHoadon()); // ID của hóa đơn vừa tạo
+            id.setIdSanpham(item.getSanPham().getIdSanpham()); // ID của sản phẩm
+
+            // Gán composite key vào HoaDonChiTiet
+            hoaDonChiTiet.setId(id);
+
+            // Gán các trường khác
+            hoaDonChiTiet.setHoaDon(hoaDon);
+            hoaDonChiTiet.setSanPham(item.getSanPham());
+            hoaDonChiTiet.setSoluong(item.getSoluong());
+
+            // Lưu HoaDonChiTiet
+            hoaDonChiTietRepository.save(hoaDonChiTiet);
+        }
+
+        // Xóa giỏ hàng sau khi thanh toán thành công
+        gioHangChiTietRepository.deleteAll(cartItems);
     }
 }
