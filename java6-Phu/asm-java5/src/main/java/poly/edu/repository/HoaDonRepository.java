@@ -13,4 +13,8 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 	@Transactional
 	@Query("DELETE FROM HoaDon h WHERE h.users.idUser = :idUser")
 	void deleteByUserId(@Param("idUser") String idUser);
+	@Modifying
+	@Transactional
+	@Query("UPDATE HoaDon h SET h.giaohang = :giaohang WHERE h.idHoadon = :idHoadon")
+	void updateGiaoHangByIdHoadon(@Param("giaohang") String giaohang, @Param("idHoadon") Integer idHoadon);
 }

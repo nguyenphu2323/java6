@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Manager</title>
+    <!-- Add necessary CSS and JS files -->
+</head>
+<body>
+    <h1>Order Manager</h1>
+   
+    <table class="table table-hover table-bordered">
+        <thead class="table-primary">
+          <tr>
+            <th>Mã hóa đơn</th>
+            <th>Ngày lập</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        
+
+        <tbody>
+          <tr th:each="hd: ${hoadons}">
+            <td th:text="${hd.idHoadon}"></td>
+            <td th:text="${hd.ngaytao}"></td>
+            <td th:text="${hd.giaohang}"></td>
+          </tr>
+        </tbody>
+      </table>
+</body>
+</html>

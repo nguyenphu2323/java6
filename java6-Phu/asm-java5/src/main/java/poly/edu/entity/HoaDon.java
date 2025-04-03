@@ -25,6 +25,7 @@ public class HoaDon {
 	private Date ngaytao;
 	private String trangthai;
 	private String diachi;
+	private String giaohang;
 	private List<HoaDonChiTiet> hoaDonChiTiets;
 
 	public HoaDon() {
@@ -91,6 +92,15 @@ public class HoaDon {
 
 	public void setDiachi(String diachi) {
 		this.diachi = diachi;
+	}
+
+	@Column(name = "giaohang", nullable = false)
+	public String getGiaohang() {
+		return this.giaohang;
+	}
+
+	public void setGiaohang(String giaohang) {
+		this.giaohang = giaohang;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "hoaDon")

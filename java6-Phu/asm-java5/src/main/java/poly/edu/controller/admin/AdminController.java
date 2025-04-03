@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import poly.edu.entity.Users;
+import poly.edu.service.HoaDonService;
 import poly.edu.service.UserService;
 
 @Controller
@@ -21,6 +22,8 @@ public class AdminController {
 	UserService userService;
 	@Autowired
 	private HttpSession session;
+	@Autowired
+	private HoaDonService hoaDonService;
 
 	@GetMapping("/admin")
 	public String home(Model model) {
@@ -111,5 +114,9 @@ public class AdminController {
 		return "redirect:/admin/user";
 	}
 
+	@GetMapping("/admin/orderManager")
+	public String danhsachhoadon(Model model){
+		model.addAttribute("hoadons", hoaDonService.getAllHoaDons());
+		return "/admin/orderManager"; 
+	}
 }
-//test update
