@@ -109,20 +109,30 @@ public class GioHangChiTietService {
     public List<GioHangChiTiet> getAllByIdUser(String id) {
         return gioHangChiTietRepository.findByGioHang_Users_IdUser(id);
     }
-///////thanh toán
-    public void checkout(String userId, String address) {
+
+    // 🛍️ Thanh toán
+    public void checkout(String userId, String address, Integer deliveryMethod) {
         // Lấy giỏ hàng của người dùng
         List<GioHangChiTiet> cartItems = gioHangChiTietRepository.findByGioHang_Users_IdUser(userId);
         if (cartItems.isEmpty()) {
             throw new RuntimeException("Giỏ hàng trống!");
         }
 
+        // Kiểm tra hình thức giao hàng hợp lệ
+        if (deliveryMethod != 1 && deliveryMethod != 2) {
+            throw new IllegalArgumentException("Hình thức giao hàng không hợp lệ!");
+        }
+
+        // Xác định hình thức giao hàng
+        String deliveryMethodName = deliveryMethod == 1 ? "Giao tiêu chuẩn" : "Giao nhanh";
+
         // Tạo hóa đơn mới
         HoaDon hoaDon = new HoaDon();
         hoaDon.setUsers(usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại")));
         hoaDon.setNgaytao(new Date());
         hoaDon.setTrangthai("Chưa thanh toán");
-        hoaDon.setDiachi(address); // Thay đổi địa chỉ giao hàng nếu cần
+        hoaDon.setDiachi(address); // Giữ nguyên địa chỉ
+        hoaDon.setGiaohang(deliveryMethodName); // Gán giá trị cho giaohang
 
         // Lưu hóa đơn vào cơ sở dữ liệu
         hoaDon = hoaDonRepository.save(hoaDon);
@@ -133,8 +143,8 @@ public class GioHangChiTietService {
 
             // Tạo composite key
             HoaDonChiTietId id = new HoaDonChiTietId();
-            id.setIdHoadon(hoaDon.getIdHoadon()); // ID của hóa đơn vừa tạo
-            id.setIdSanpham(item.getSanPham().getIdSanpham()); // ID của sản phẩm
+            id.setIdHoadon(hoaDon.getIdHoadon());
+            id.setIdSanpham(item.getSanPham().getIdSanpham());
 
             // Gán composite key vào HoaDonChiTiet
             hoaDonChiTiet.setId(id);

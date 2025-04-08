@@ -75,8 +75,9 @@ public class HoaDonService {
                     hoaDon.getTrangthai(),
                     user.getHoten(),
                     user.getSdt(),
-                    hoaDon.getDiachi(),
-                    new Date(hoaDon.getNgaytao().getTime())
+                    hoaDon.getDiachi(),                    
+                    new Date(hoaDon.getNgaytao().getTime()),
+                    hoaDon.getGiaohang()
                 );
                 donHangDTOs.add(dto);
             }

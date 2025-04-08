@@ -13,10 +13,19 @@ public class DonHangDTO {
     private Double gia;
     private Double giamGia;
     private Date ngayTao;
+    private String giaohang;
+
+    public String getGiaohang() {
+        return giaohang;
+    }
+
+    public void setGiaohang(String giaohang) {
+        this.giaohang = giaohang;
+    }
 
     // Constructor
     public DonHangDTO(Integer idHoadon, String tenSanPham, Double gia, Double giamGia, Integer soLuong,
-                      String trangThai, String hoten, String sdt, String diaChi, Date ngayTao) {
+                      String trangThai, String hoten, String sdt, String diaChi, Date ngayTao, String giaohang) {
         this.idHoadon = idHoadon;
         this.tenSanPham = tenSanPham;
         this.gia = gia;
@@ -27,6 +36,7 @@ public class DonHangDTO {
         this.sdt = sdt;
         this.diaChi = diaChi;
         this.ngayTao = ngayTao;
+        this.giaohang = giaohang;
     }
 
     // Getters and Setters

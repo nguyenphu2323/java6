@@ -125,24 +125,38 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(@RequestParam(name = "userId") String userId,
-            @RequestParam(name = "address") String address) {
+    public ResponseEntity<?> checkout(
+            @RequestParam(name = "userId") String userId,
+            @RequestParam(name = "address") String address,
+            @RequestParam(name = "deliveryMethod") Integer deliveryMethod) {
         try {
+            // Kiểm tra giá trị deliveryMethod
+            if (deliveryMethod != 1 && deliveryMethod != 2) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Hình thức giao hàng không hợp lệ!");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
             System.out.println("User ID: " + userId);
-            gioHangChiTietService.checkout(userId, address);
+            System.out.println("Address: " + address);
+            System.out.println("Delivery Method: " + deliveryMethod);
+            gioHangChiTietService.checkout(userId, address, deliveryMethod);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đặt hàng thành công!");
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", "/cart")
-                    .build();
+                    .body(response);
         } catch (RuntimeException e) {
             System.out.println("RuntimeException: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "/cart")
-                    .build();
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đặt hàng thất bại: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "/cart")
-                    .build();
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đã có lỗi truy vấn! Chi tiết: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -166,17 +180,11 @@ public class CartController {
 
     @GetMapping("/user/orders")
     public String orders(Model model, HttpSession session) {
-        // Lấy thông tin người dùng từ session
         Users currentUser = (Users) session.getAttribute("currentUser");
-
-        // Kiểm tra nếu người dùng chưa đăng nhập
         if (currentUser == null) {
             return "redirect:/signin";
         }
-
-        // Truyền userId vào Model
         model.addAttribute("userId", currentUser.getIdUser());
-
         return "user/orders";
     }
 

@@ -19,7 +19,7 @@ function orderRowComponent(order, index) {
             : (product.gia * (100 - product.giamGia) / 100) * product.soLuong;
         return total + priceAfterDiscount;
     }, 0);
-    const deliveryPrice = order.giaoHang === "Giao tiêu chuẩn" ? 15000 : 15000; // Phí vận chuyển
+    const deliveryPrice = order.giaohang === "Giao tiêu chuẩn" ? 15000 : 50000; // Phí vận chuyển
     const totalPrice = productPriceAfterDiscount + deliveryPrice;
 
     // Hiển thị danh sách sản phẩm trong đơn hàng
@@ -37,7 +37,7 @@ function orderRowComponent(order, index) {
             <td>${order.hoten}</td>
             <td>${order.sdt}</td>
             <td>${order.diaChi}</td>
-            <td>${order.giaoHang}</td>
+            <td>${order.giaohang}</td>
             <td>${new Date(order.ngayTao).toLocaleDateString('vi-VN')}</td>
             <td>${new Intl.NumberFormat('vi-VN').format(totalPrice)} VNĐ</td>
             <td>
@@ -133,7 +133,7 @@ const state = {
                         hoten: order.hoten,
                         sdt: order.sdt,
                         diaChi: order.diaChi,
-                        giaoHang: order.giaoHang,
+                        giaohang: order.giaohang,
                         ngayTao: order.ngayTao,
                         products: []
                     };
