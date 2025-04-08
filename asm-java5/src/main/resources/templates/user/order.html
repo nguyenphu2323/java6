@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Tin Đặt Hàng</title>
+</head>
+<body>
+    <h2>Nhập Thông Tin Đặt Hàng</h2>
+    <form action="/confirm-order" method="post">
+        <label>Địa chỉ:</label>
+        <input type="text" name="address" required><br>
+
+        <label>Ngày tạo:</label>
+        <input type="date" name="createdDate" value="<?php echo date('Y-m-d'); ?>" readonly><br>
+
+        <label>Trạng thái:</label>
+        <select name="status" required>
+            <option value="chưa xử lý">Chưa xử lý</option>
+            <option value="đang xử lý">Đang xử lý</option>
+            <option value="đã giao">Đã giao</option>
+        </select><br>
+
+        <label>Giao hàng:</label>
+        <select name="deliveryType" required>
+            <option value="tiêu chuẩn">Giao hàng tiêu chuẩn</option>
+            <option value="nhanh">Giao hàng nhanh</option>
+        </select><br>
+
+        <button type="submit">Xác nhận đặt hàng</button>
+    </form>
+</body>
+</html>

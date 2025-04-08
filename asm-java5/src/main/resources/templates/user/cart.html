@@ -3,13 +3,13 @@
 
 <head>
   <th:block th:replace="~{user/_meta}" />
+  <meta name="currentUserId" th:content="${session.currentUser?.idUser}" />
   <title>Giỏ hàng</title>
 
   <!-- Custom Scripts -->
   <script th:src="@{/js/toast.js}" type="module"></script>
   <script th:src="@{/js/cart.js}" type="module"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
 </head>
 
 <body>
@@ -18,13 +18,12 @@
 <section class="section-pagetop bg-light">
   <div class="container">
     <h2 class="title-page">Giỏ hàng</h2>
-  </div> <!-- container.// -->
-</section> <!-- section-pagetop.// -->
+  </div>
+</section>
 
 <section class="section-content padding-y">
   <div class="container">
     <div class="row">
-
        <div th:if="${session.currentUser == null}">
          <p>
            Vui lòng <a th:href="@{/signin}">đăng nhập</a> để sử dụng chức năng giỏ hàng.
@@ -32,39 +31,62 @@
        </div>
        <th:block th:if="${session.currentUser != null}">
          <main class="col-lg-9 mb-lg-0 mb-3">
-           <div class="card">
+          <div class="card">
+            <div id="cart-table"></div>
+        
+            <div class="card-body border-top">
+              <form action="/checkout" method="post">
+                <input type="hidden" name="userId" th:value="${session.currentUser.idUser}">
+            
+                <label for="address">Địa chỉ giao hàng:</label>
+                <input type="text" name="address" placeholder="Enter shipping address" required />
+            
+                <!-- Thêm phần chọn hình thức giao hàng vào form -->
+                <div class="mt-3">
+                  <label>Hình thức giao hàng:</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="deliveryMethod" id="delivery-method-1" value="1" checked>
+                    <label class="form-check-label" for="delivery-method-1">Giao tiêu chuẩn</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="deliveryMethod" id="delivery-method-2" value="2">
+                    <label class="form-check-label" for="delivery-method-2">Giao nhanh</label>
+                  </div>
+                </div>
+            
+                <!-- Nút Đặt hàng -->
+                <button type="submit" class="btn btn-primary float-end">Đặt hàng</button>
+              </form>
+            
+              <a href="/" class="btn btn-light">Tiếp tục mua sắm</a>
+            </div>
 
-             <div id="cart-table"></div>
-
-             <div class="card-body border-top">
-               <button type="button" class="btn btn-primary float-end" id="checkoutBtn" disabled>Đặt hàng</button>
-               
-               <a href="/" class="btn btn-light">Tiếp tục mua sắm</a>
-             </div> <!-- card-body.// -->
-
-           </div> <!-- card.// -->
-         </main> <!-- col.// -->
+            <!-- Bỏ phần orderForm vì không cần thiết -->
+            <div id="orderMessage" style="display:none;">
+                <h2>Đặt hàng thành công!</h2>
+            </div>
+          </div>
+         </main>
 
          <aside class="col-lg-3">
-
-           <div class="card mb-3">
+           <!-- <div class="card mb-3">
              <div class="card-body">
                <p class="card-title">Hình thức giao hàng</p>
                <form>
                  <div class="form-check mb-2">
                    <input class="form-check-input" type="radio" name="delivery-method"
-                          id="delivery-method-1" value="1" disabled>
+                          id="delivery-method-1" value="1" >
                    <label class="form-check-label" for="delivery-method-1">Giao tiêu chuẩn</label>
                  </div>
                  <div class="form-check mb-2">
                    <input class="form-check-input" type="radio" name="delivery-method"
-                          id="delivery-method-2" value="2" disabled>
+                          id="delivery-method-2" value="2" >
                    <label class="form-check-label" for="delivery-method-2">Giao nhanh</label>
                  </div>
                </form>
-             </div> <!-- card-body.// -->
-           </div> <!-- card.// -->
-
+             </div>
+           </div> -->
+ 
            <div class="card">
              <div class="card-body">
                <dl class="row mb-0">
@@ -75,20 +97,17 @@
                  <dt class="col-xxl-6 col-lg-12 col-6">Tổng cộng:</dt>
                  <dd class="col-xxl-6 col-lg-12 col-6 text-end mb-3"><strong><span id="total-price">0</span>₫</strong></dd>
                </dl>
-             </div> <!-- card-body.// -->
-           </div> <!-- card.// -->
-
-         </aside> <!-- col.// -->
+             </div>
+           </div>
+         </aside>
        </th:block>
-
-    </div> <!-- row.// -->
-  </div> <!-- container -->
-</section> <!-- section-content.// -->
+    </div>
+  </div>
+</section>
 
 <th:block th:replace="~{user/_footer}" />
 
-<div class="toast-container position-fixed bottom-0 start-0 p-3"></div> <!-- toast-container.// -->
+<div class="toast-container position-fixed bottom-0 start-0 p-3"></div>
 
 </body>
-
 </html>
