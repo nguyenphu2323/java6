@@ -15,7 +15,11 @@ import poly.edu.entity.HoaDon;
 import poly.edu.entity.HoaDonChiTiet;
 import poly.edu.entity.HoaDonChiTietId;
 import poly.edu.entity.SanPham;
-import poly.edu.repository.*;
+import poly.edu.repository.GioHangChiTietRepository;
+import poly.edu.repository.GioHangRepository;
+import poly.edu.repository.HoaDonChiTietRepository;
+import poly.edu.repository.HoaDonRepository;
+import poly.edu.repository.UsersRepository;
 
 @Service
 public class GioHangChiTietService {
@@ -105,8 +109,8 @@ public class GioHangChiTietService {
     public List<GioHangChiTiet> getAllByIdUser(String id) {
         return gioHangChiTietRepository.findByGioHang_Users_IdUser(id);
     }
-
-    public void checkout(String userId) {
+///////thanh toán
+    public void checkout(String userId, String address) {
         // Lấy giỏ hàng của người dùng
         List<GioHangChiTiet> cartItems = gioHangChiTietRepository.findByGioHang_Users_IdUser(userId);
         if (cartItems.isEmpty()) {
@@ -118,7 +122,7 @@ public class GioHangChiTietService {
         hoaDon.setUsers(usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại")));
         hoaDon.setNgaytao(new Date());
         hoaDon.setTrangthai("Chưa thanh toán");
-        hoaDon.setDiachi("Địa chỉ giao hàng"); // Thay đổi địa chỉ giao hàng nếu cần
+        hoaDon.setDiachi(address); // Thay đổi địa chỉ giao hàng nếu cần
 
         // Lưu hóa đơn vào cơ sở dữ liệu
         hoaDon = hoaDonRepository.save(hoaDon);

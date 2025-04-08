@@ -3,6 +3,7 @@ package poly.edu.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import poly.edu.DTO.DonHangDTO;
 import poly.edu.entity.HoaDon;
 import poly.edu.entity.HoaDonChiTiet;
 import poly.edu.entity.HoaDonChiTietId;
@@ -11,6 +12,8 @@ import poly.edu.repository.HoaDonRepository;
 import poly.edu.repository.HoaDonChiTietRepository;
 import poly.edu.repository.UsersRepository;
 
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,5 +57,37 @@ public class HoaDonService {
 
         return savedHoaDon;
     }
-}
 
+    // Lấy danh sách đơn hàng của người dùng
+    public List<DonHangDTO> getDonHangByUserId(String userId) {
+        List<HoaDon> hoaDons = hoaDonRepository.findHoaDonByUserIdWithDetails(userId);
+        List<DonHangDTO> donHangDTOs = new ArrayList<>();
+
+        for (HoaDon hoaDon : hoaDons) {
+            Users user = hoaDon.getUsers();
+            for (HoaDonChiTiet chiTiet : hoaDon.getHoaDonChiTiets()) {
+                DonHangDTO dto = new DonHangDTO(
+                    hoaDon.getIdHoadon(),
+                    chiTiet.getSanPham().getTenSanpham(),
+                    (double) chiTiet.getSanPham().getGia(),
+                    (double) chiTiet.getSanPham().getGiamgia(),
+                    chiTiet.getSoluong(),
+                    hoaDon.getTrangthai(),
+                    user.getHoten(),
+                    user.getSdt(),
+                    hoaDon.getDiachi(),
+                    new Date(hoaDon.getNgaytao().getTime())
+                );
+                donHangDTOs.add(dto);
+            }
+        }
+
+        return donHangDTOs;
+    }
+
+    // Lấy chi tiết một hóa đơn
+    public HoaDon getHoaDonWithDetailsById(Integer idHoadon) {
+        return hoaDonRepository.findHoaDonWithDetailsById(idHoadon)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + idHoadon));
+    }
+}

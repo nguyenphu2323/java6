@@ -1,6 +1,5 @@
 package poly.edu.controller.user;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,19 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import ch.qos.logback.core.model.Model;
+import jakarta.servlet.http.HttpSession;
+import poly.edu.DTO.DonHangDTO;
 import poly.edu.entity.CartItemRequest;
 import poly.edu.entity.CartItemResponse;
+import poly.edu.entity.HoaDon;
 import poly.edu.entity.SanPham;
+import poly.edu.entity.Users;
 import poly.edu.service.GioHangChiTietService;
+import poly.edu.service.HoaDonService;
 import poly.edu.service.SanPhamService;
 import poly.edu.service.UserService;
 
@@ -35,6 +40,8 @@ public class CartController {
     UserService userService;
     @Autowired
     SanPhamService sanPhamService;
+    @Autowired
+    HoaDonService hoaDonService;
 
     @GetMapping("/cart")
     public String cart(Model model) {
@@ -118,19 +125,79 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(@RequestParam(name = "userId") String userId) {
+    public ResponseEntity<?> checkout(@RequestParam(name = "userId") String userId,
+            @RequestParam(name = "address") String address) {
         try {
-            System.out.println("User ID: " + userId); // In ra userId để kiểm tra
-            gioHangChiTietService.checkout(userId); // Kiểm tra xem có lỗi khi gọi phương thức này không
-            return ResponseEntity.ok(Collections.singletonMap("message", "Đặt hàng thành công!"));
+            System.out.println("User ID: " + userId);
+            gioHangChiTietService.checkout(userId, address);
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "/cart")
+                    .build();
         } catch (RuntimeException e) {
-            System.out.println("RuntimeException: " + e.getMessage()); // In ra thông báo lỗi
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("message", e.getMessage()));
+            System.out.println("RuntimeException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "/cart")
+                    .build();
         } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage()); // In ra thông báo lỗi
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("message", "Đã có lỗi xảy ra!"));
+            System.out.println("Exception: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "/cart")
+                    .build();
         }
+    }
+
+    @ResponseBody
+    @GetMapping("/orders")
+    public ResponseEntity<Object> getOrders(@RequestParam(name = "userId") String userId) {
+        try {
+            System.out.println("Fetching orders for userId: " + userId);
+            List<DonHangDTO> orders = hoaDonService.getDonHangByUserId(userId);
+            System.out.println("Orders found: " + orders.size());
+            Map<String, List<DonHangDTO>> response = new HashMap<>();
+            response.put("orders", orders);
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đã có lỗi truy vấn! Chi tiết: " + e.getMessage());
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+    @GetMapping("/user/orders")
+    public String orders(Model model, HttpSession session) {
+        // Lấy thông tin người dùng từ session
+        Users currentUser = (Users) session.getAttribute("currentUser");
+
+        // Kiểm tra nếu người dùng chưa đăng nhập
+        if (currentUser == null) {
+            return "redirect:/signin";
+        }
+
+        // Truyền userId vào Model
+        model.addAttribute("userId", currentUser.getIdUser());
+
+        return "user/orders";
+    }
+
+    @ResponseBody
+    @GetMapping("/order-details")
+    public ResponseEntity<Object> getOrderDetails(@RequestParam(name = "orderId") Integer orderId) {
+        try {
+            HoaDon hoaDon = hoaDonService.getHoaDonWithDetailsById(orderId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("order", hoaDon);
+            response.put("orderDetails", hoaDon.getHoaDonChiTiets());
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đã có lỗi truy vấn! Chi tiết: " + e.getMessage());
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+    @GetMapping("/user/order-details")
+    public String orderDetails(Model model) {
+        return "user/order-details";
     }
 }
