@@ -27,8 +27,8 @@ const cartTableRootElement = document.querySelector("#cart-table");
 const tempPriceRootElement = document.querySelector("#temp-price");
 const deliveryPriceRootElement = document.querySelector("#delivery-price");
 const totalPriceRootElement = document.querySelector("#total-price");
-const checkoutBtnElement = document.querySelector("#checkoutBtn");
-const deliveryMethodRadioElements = [...document.querySelectorAll("input[name='delivery-method']")];
+const checkoutBtnElement = document.querySelector("form button[type='submit']"); // Sửa để chọn nút submit
+const deliveryMethodRadioElements = [...document.querySelectorAll("input[name='deliveryMethod']")];
 const orderMessageElement = document.querySelector("#orderMessage");
 
 // COMPONENTS
@@ -114,7 +114,7 @@ function cartTableComponent(cartItemRowComponentsFragment) {
         </thead>
         <tbody>${cartItemRowComponentsFragment}</tbody>
       </table>
-    </div> <!-- table.responsive-md.// -->
+    </div>
   `;
 }
 
@@ -194,7 +194,7 @@ const initialCart = {
 
 const initialOrder = {
   deliveryMethod: 1,
-  deliveryPrice: 15000,
+  deliveryPrice: 20000,
 };
 
 const state = {
@@ -203,7 +203,7 @@ const state = {
   initState: async () => {
     if (!currentUserIdMetaTag || !currentUserIdMetaTag.content) {
       cartTableRootElement.innerHTML = '<p>Vui lòng đăng nhập để xem giỏ hàng.</p>';
-      checkoutBtnElement.disabled = true;
+      if (checkoutBtnElement) checkoutBtnElement.disabled = true;
       return;
     }
 
@@ -262,11 +262,9 @@ const state = {
       const [status, response] = await _fetchPostAddOrder();
       if (status === 200) {
         createToast(toastComponent(SUCCESS_ADD_ORDER_MESSAGE, "success"));
-        // Xóa giỏ hàng sau khi đặt hàng thành công
         state.cart = { ...initialCart };
         render();
         setTotalCartItemsQuantity(state.cart);
-        // Cập nhật giao diện
         cartTableRootElement.style.display = "none";
         orderMessageElement.style.display = "block";
       } else {
@@ -275,11 +273,10 @@ const state = {
     }
   },
   changeDeliveryMethod: (deliveryMethodValue) => {
-    if (state.order.deliveryMethod !== Number(deliveryMethodValue)) {
-      state.order.deliveryMethod = deliveryMethodInputValues[deliveryMethodValue].deliveryMethod;
-      state.order.deliveryPrice = deliveryMethodInputValues[deliveryMethodValue].deliveryPrice;
-      render();
-    }
+    state.order.deliveryMethod = deliveryMethodInputValues[deliveryMethodValue].deliveryMethod;
+    state.order.deliveryPrice = deliveryMethodInputValues[deliveryMethodValue].deliveryPrice;
+    console.log("Updated delivery price:", state.order.deliveryPrice); // Debug
+    render();
   },
   getTempPrice: () => {
     return state.cart.cartItems
@@ -297,24 +294,22 @@ const state = {
 
 // RENDER
 function render() {
-  // Render cartTableRootElement
   const cartItemRowComponentsFragment = state.cart.cartItems.map(cartItemRowComponent).join("");
   cartTableRootElement.innerHTML = cartTableComponent(cartItemRowComponentsFragment);
 
-  // Render tempPriceRootElement, deliveryPriceRootElement, totalPriceRootElement
   tempPriceRootElement.innerHTML = _formatPrice(state.getTempPrice());
   deliveryPriceRootElement.innerHTML = _formatPrice(state.getDeliveryPrice());
   totalPriceRootElement.innerHTML = _formatPrice(state.getTotalPrice());
 
-  // Render checkoutBtnElement, deliveryMethodRadioElements
   const isCartItemsEmpty = state.cart.cartItems.length === 0;
-  checkoutBtnElement.disabled = isCartItemsEmpty;
+  if (checkoutBtnElement) {
+    checkoutBtnElement.disabled = isCartItemsEmpty;
+  }
   deliveryMethodRadioElements.forEach((radio) => {
     radio.disabled = isCartItemsEmpty;
     radio.checked = radio.value === String(state.order.deliveryMethod);
   });
 
-  // Attach event handlers for delete cart item buttons
   state.cart.cartItems.forEach((cartItem) => {
     const deleteCartItemBtnElement = document.querySelector(`#delete-cart-item-${cartItem.id}`);
     if (deleteCartItemBtnElement) {
@@ -322,7 +317,6 @@ function render() {
     }
   });
 
-  // Attach event handlers for update cart item buttons
   state.cart.cartItems.forEach((cartItem) => {
     const updateCartItemBtnElement = document.querySelector(`#update-cart-item-${cartItem.id}`);
     if (updateCartItemBtnElement) {
@@ -335,13 +329,14 @@ function render() {
 }
 
 function attachEventHandlersForNoneRerenderElements() {
-  // Attach event handlers for delivery method radios
   deliveryMethodRadioElements.forEach((radio) => {
-    radio.addEventListener("click", () => state.changeDeliveryMethod(radio.value));
+    radio.addEventListener("change", () => {
+      console.log("Delivery method changed to:", radio.value); // Debug
+      state.changeDeliveryMethod(radio.value);
+    });
   });
 
-  // Attach event handlers for checkout button
-  checkoutBtnElement.addEventListener("click", state.checkoutCart);
+  // Không cần gắn sự kiện click cho checkoutBtnElement vì nó là nút submit form
 }
 
 // MAIN

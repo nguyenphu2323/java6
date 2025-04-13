@@ -31,7 +31,7 @@ function orderRowComponent(order, index) {
         `${product.gia.toLocaleString('vi-VN')} VNĐ`
     ).join('<br>');
     const discountsHtml = order.products.map(product =>
-        `${product.giamGia.toLocaleString('vi-VN')} VNĐ`
+        `${product.giamGia.toLocaleString('vi-VN')} %`
     ).join('<br>');
     const quantitiesHtml = order.products.map(product =>
         `${product.soLuong}`
@@ -50,9 +50,7 @@ function orderRowComponent(order, index) {
             <td>${order.giaohang}</td>
             <td>${new Date(order.ngayTao).toLocaleDateString('vi-VN')}</td>
             <td>${new Intl.NumberFormat('vi-VN').format(totalPrice)} VNĐ</td>
-            <td>
-                <a href="/user/order-details?orderId=${order.idHoadon}" class="btn btn-primary btn-sm">Xem chi tiết</a>
-            </td>
+            
         </tr>
     `;
 }
@@ -82,7 +80,7 @@ function ordersTableComponent(orderRowComponentsFragment) {
                         <th scope="col">Giao hàng</th>
                         <th scope="col">Ngày tạo</th>
                         <th scope="col">Tổng cộng</th>
-                        <th scope="col">Hành động</th>
+                        
                     </tr>
                 </thead>
                 <tbody>${orderRowComponentsFragment}</tbody>
