@@ -1,88 +1,106 @@
 <!DOCTYPE html>
 <html lang="vi">
+  <head>
+    <th:block th:replace="~{user/_meta}" />
+    <title>Đăng nhập</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #f1f0ec;
+        color: #ffffff;
+      }
 
-<head>
-  <th:block th:replace="~{user/_meta}" />
-  <title>Đăng nhập</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-  <style>
-    body {
-      background-color: #F1F0EC;
-      color: #ffffff;
-    }
+      .card {
+        background-color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+      }
 
-    .card {
-      background-color: #ffffff;
-      border: none;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-    }
+      .card:hover {
+        transform: scale(1.05);
+        transition: 0.3s;
+      }
 
-    .card:hover {
-      transform: scale(1.05);
-      transition: 0.3s;
-    }
+      .btn-primary {
+        background-color: #03dac5;
+        color: #000;
+        border: none;
+      }
 
-    .btn-primary {
-      background-color: #03dac5;
-      color: #000;
-      border: none;
-    }
+      .btn-primary:hover {
+        background-color: #018786;
+      }
 
-    .btn-primary:hover {
-      background-color: #018786;
-    }
+      .alert-danger {
+        background-color: #cf6679;
+        color: #000;
+        border: none;
+      }
 
-    .alert-danger {
-      background-color: #cf6679;
-      color: #000;
-      border: none;
-    }
+      a {
+        color: #bb86fc;
+      }
 
-    a {
-      color: #bb86fc;
-    }
+      a:hover {
+        color: #ff79b0;
+      }
+    </style>
+  </head>
 
-    a:hover {
-      color: #ff79b0;
-    }
-  </style>
-</head>
+  <body>
+    <th:block th:replace="~{user/_header}" />
 
-<body>
-  <th:block th:replace="~{user/_header}" />
+    <section class="section-content" style="margin: 100px 0">
+      <div class="card mx-auto" style="max-width: 380px">
+        <div class="card-body">
+          <div
+            th:if="${errorMessage}"
+            class="alert alert-danger"
+            role="alert"
+            th:text="${errorMessage}"
+          ></div>
+          <h4 class="card-title mb-4">Đăng nhập</h4>
+          <form th:action="@{/signin}" method="post">
+            <div class="mb-3">
+              <input
+                name="idUser"
+                class="form-control"
+                placeholder="Tên đăng nhập"
+                type="text"
+                autocomplete="off"
+                th:value="${user.idUser}"
+              />
+            </div>
+            <div class="mb-3">
+              <input
+                name="matkhau"
+                class="form-control"
+                placeholder="Mật khẩu"
+                type="password"
+                autocomplete="off"
+                th:value="${user.matkhau}"
+              />
+            </div>
+            <button type="submit" class="btn btn-dark w-100">Đăng nhập</button>
+          </form>
+        </div>
+        <!-- card-body.// -->
+      </div>
+      <!-- card .// -->
+      <p class="text-center mt-4 text-dark">
+        Không có tài khoản?
+        <a class="text-dark text-decoration-none fw-bold" th:href="@{/signup}"
+          >Đăng ký</a
+        >
+      </p>
+    </section>
+    <!-- section-content.// -->
 
-  <section class="section-content" style="margin: 100px 0;">
-    <div class="card mx-auto" style="max-width: 380px">
-      <div class="card-body">
-        <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
-        <h4 class="card-title mb-4">Đăng nhập</h4>
-        <form th:action="@{/signin}" method="post">
-          <div class="mb-3">
-            <input name="idUser"
-                   class="form-control"
-                   placeholder="Tên đăng nhập"
-                   type="text"
-                   autocomplete="off"
-                   th:value="${user.idUser}">
-          </div>
-          <div class="mb-3">
-            <input name="matkhau"
-                   class="form-control"
-                   placeholder="Mật khẩu"
-                   type="password"
-                   autocomplete="off"
-                   th:value="${user.matkhau}">
-          </div>
-          <button type="submit" class="btn btn-dark w-100">Đăng nhập</button>
-        </form>
-      </div> <!-- card-body.// -->
-    </div> <!-- card .// -->
-    <p class="text-center mt-4 text-dark">Không có tài khoản? <a class="text-dark text-decoration-none fw-bold" th:href="@{/signup}">Đăng ký</a></p>
-  </section> <!-- section-content.// -->
+    <th:block th:replace="~{user/_footer}" />
 
-  <th:block th:replace="~{user/_footer}" />
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-</body>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
