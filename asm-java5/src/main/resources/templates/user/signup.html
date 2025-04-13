@@ -67,50 +67,31 @@
         <form th:action="@{/signup}" method="post">
           <div class="mb-3">
             <label for="inputEmail" class="form-label">Email</label>
-            <input type="email"
-                   id="inputEmail"
-                   name="idUser"
-                   class="form-control"
-                   th:value="${user.idUser}"
-                   required>
+            <input type="email" id="inputEmail" name="idUser" class="form-control" th:value="${user.idUser}" required>
           </div>
           <div class="mb-3">
             <label for="inputPassword" class="form-label">Mật khẩu</label>
-            <input type="password"
-                   id="inputPassword"
-                   name="matkhau"
-                   class="form-control"
-                   th:value="${user.matkhau}"
-                   required>
+            <input type="password" id="inputPassword" name="matkhau" class="form-control" th:value="${user.matkhau}"
+              required>
           </div>
 
           <div class="mb-3">
             <label for="inputFullname" class="form-label">Họ và tên</label>
-            <input type="text"
-                   id="inputFullname"
-                   name="hoten"
-                   class="form-control"
-                   th:value="${user.hoten}"
-                   required>
+            <input type="text" id="inputFullname" name="hoten" class="form-control" th:value="${user.hoten}" required>
           </div>
 
           <div class="mb-3">
             <label for="inputPhoneNumber" class="form-label">Số điện thoại</label>
-            <input type="text"
-                   id="inputPhoneNumber"
-                   name="sdt"
-                   class="form-control"
-                   th:value="${user.sdt}"
-                   required
-                   pattern="0[0-9]{9}"
-                   title="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0">
+            <input type="text" id="inputPhoneNumber" name="sdt" class="form-control" th:value="${user.sdt}" required
+              pattern="0[0-9]{9}" title="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0">
           </div>
 
           <button type="submit" class="btn btn-dark w-100">Đăng ký</button>
         </form>
       </div>
     </div>
-    <p class="text-center text-dark mt-4">Đã có tài khoản? <a th:href="@{/signin} btn-dark">Đăng nhập</a></p>
+    <p class="text-center text-dark mt-4">Đã có tài khoản? <a th:href="@{/signin}"
+        class="text-dark text-decoration-none ">Đăng nhập</a>
   </section>
 
   <th:block th:replace="~{user/_footer}" />

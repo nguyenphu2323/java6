@@ -67,18 +67,17 @@ public class HoaDonService {
             Users user = hoaDon.getUsers();
             for (HoaDonChiTiet chiTiet : hoaDon.getHoaDonChiTiets()) {
                 DonHangDTO dto = new DonHangDTO(
-                    hoaDon.getIdHoadon(),
-                    chiTiet.getSanPham().getTenSanpham(),
-                    (double) chiTiet.getSanPham().getGia(),
-                    (double) chiTiet.getSanPham().getGiamgia(),
-                    chiTiet.getSoluong(),
-                    hoaDon.getTrangthai(),
-                    user.getHoten(),
-                    user.getSdt(),
-                    hoaDon.getDiachi(),                    
-                    new Date(hoaDon.getNgaytao().getTime()),
-                    hoaDon.getGiaohang()
-                );
+                        hoaDon.getIdHoadon(),
+                        chiTiet.getSanPham().getTenSanpham(),
+                        (double) chiTiet.getSanPham().getGia(),
+                        (double) chiTiet.getSanPham().getGiamgia(),
+                        chiTiet.getSoluong(),
+                        hoaDon.getTrangthai(),
+                        user.getHoten(),
+                        user.getSdt(),
+                        hoaDon.getDiachi(),
+                        new Date(hoaDon.getNgaytao().getTime()),
+                        hoaDon.getGiaohang());
                 donHangDTOs.add(dto);
             }
         }
@@ -91,4 +90,18 @@ public class HoaDonService {
         return hoaDonRepository.findHoaDonWithDetailsById(idHoadon)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + idHoadon));
     }
+
+    public List<HoaDon> getAllHoaDons() {
+        return hoaDonRepository.findAll();
+    }
+
+    public void updateTrangThaiVaGiaohang(int idHoadon, String giaohang, String trangthai) {
+        HoaDon hoaDon = hoaDonRepository.findById(idHoadon)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + idHoadon));
+
+        hoaDon.setGiaohang(giaohang);
+        hoaDon.setTrangthai(trangthai);
+        hoaDonRepository.save(hoaDon); // Lưu lại đơn hàng sau khi thay đổi
+    }
+
 }

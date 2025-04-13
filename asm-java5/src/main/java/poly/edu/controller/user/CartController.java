@@ -1,5 +1,6 @@
 package poly.edu.controller.user;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,13 +8,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -130,7 +134,6 @@ public class CartController {
             @RequestParam(name = "address") String address,
             @RequestParam(name = "deliveryMethod") Integer deliveryMethod) {
         try {
-            // Kiểm tra giá trị deliveryMethod
             if (deliveryMethod != 1 && deliveryMethod != 2) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Hình thức giao hàng không hợp lệ!");
@@ -162,13 +165,36 @@ public class CartController {
 
     @ResponseBody
     @GetMapping("/orders")
-    public ResponseEntity<Object> getOrders(@RequestParam(name = "userId") String userId) {
+    public ResponseEntity<Object> getOrders(
+            @RequestParam(name = "userId") String userId,
+            @RequestParam(name = "trangthai", required = false) String trangthai,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            System.out.println("Fetching orders for userId: " + userId);
-            List<DonHangDTO> orders = hoaDonService.getDonHangByUserId(userId);
-            System.out.println("Orders found: " + orders.size());
-            Map<String, List<DonHangDTO>> response = new HashMap<>();
-            response.put("orders", orders);
+            System.out.println("Fetching orders for userId: " + userId + ", trangthai: " + trangthai);
+            List<DonHangDTO> allOrders = hoaDonService.getDonHangByUserId(userId);
+
+            // Lọc theo trạng thái nếu có
+            if (trangthai != null && !trangthai.isEmpty()) {
+                allOrders = allOrders.stream()
+                        .filter(order -> trangthai.equals(order.getTrangThai()))
+                        .collect(Collectors.toList());
+            }
+
+            // Phân trang thủ công
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), allOrders.size());
+            List<DonHangDTO> pagedOrders = start < allOrders.size() ? allOrders.subList(start, end) : new ArrayList<>();
+            Page<DonHangDTO> orderPage = new PageImpl<>(pagedOrders, pageable, allOrders.size());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("orders", orderPage.getContent());
+            response.put("currentPage", orderPage.getNumber());
+            response.put("totalPages", orderPage.getTotalPages());
+            response.put("totalItems", orderPage.getTotalElements());
+
+            System.out.println("Orders found: " + orderPage.getTotalElements());
             return ResponseEntity.status(200).body(response);
         } catch (Exception e) {
             e.printStackTrace();

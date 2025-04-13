@@ -128,7 +128,8 @@ public class GioHangChiTietService {
 
         // Tạo hóa đơn mới
         HoaDon hoaDon = new HoaDon();
-        hoaDon.setUsers(usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại")));
+        hoaDon.setUsers(
+                usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại")));
         hoaDon.setNgaytao(new Date());
         hoaDon.setTrangthai("Chưa thanh toán");
         hoaDon.setDiachi(address); // Giữ nguyên địa chỉ

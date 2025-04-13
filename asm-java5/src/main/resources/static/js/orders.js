@@ -9,30 +9,40 @@ const FAILED_OPERATION_MESSAGE = "Đã có lỗi truy vấn!";
 
 // ROOTS/ELEMENTS
 const ordersTableRootElement = document.querySelector("#orders-table");
+const paginationRootElement = document.querySelector("#pagination");
 
 // COMPONENTS
 function orderRowComponent(order, index) {
     // Tính tổng cộng số tiền cho đơn hàng
     const productPriceAfterDiscount = order.products.reduce((total, product) => {
-        const priceAfterDiscount = product.giamGia === 0 
-            ? product.gia * product.soLuong 
+        const priceAfterDiscount = product.giamGia === 0
+            ? product.gia * product.soLuong
             : (product.gia * (100 - product.giamGia) / 100) * product.soLuong;
         return total + priceAfterDiscount;
     }, 0);
-    const deliveryPrice = order.giaohang === "Giao tiêu chuẩn" ? 15000 : 50000; // Phí vận chuyển
+    const deliveryPrice = order.giaohang === "Giao tiêu chuẩn" ? 15000 : 50000;
     const totalPrice = productPriceAfterDiscount + deliveryPrice;
 
     // Hiển thị danh sách sản phẩm trong đơn hàng
-    const productsHtml = order.products.map(product => `
-        ${product.tenSanPham} (${product.soLuong} x ${product.gia.toLocaleString('vi-VN')} VNĐ, Giảm: ${product.giamGia.toLocaleString('vi-VN')} VNĐ)
-    `).join('<br>');
+    const productsHtml = order.products.map(product =>
+        `${product.tenSanPham} (x${product.soLuong})`
+    ).join(', ');
+    const pricesHtml = order.products.map(product =>
+        `${product.gia.toLocaleString('vi-VN')} VNĐ`
+    ).join('<br>');
+    const discountsHtml = order.products.map(product =>
+        `${product.giamGia.toLocaleString('vi-VN')} VNĐ`
+    ).join('<br>');
+    const quantitiesHtml = order.products.map(product =>
+        `${product.soLuong}`
+    ).join('<br>');
 
     return `
         <tr>
             <td>${productsHtml}</td>
-            <td>${order.products.map(p => p.gia.toLocaleString('vi-VN')).join('<br>')}</td>
-            <td>${order.products.map(p => p.giamGia.toLocaleString('vi-VN')).join('<br>')}</td>
-            <td>${order.products.map(p => p.soLuong).join('<br>')}</td>
+            <td>${pricesHtml}</td>
+            <td>${discountsHtml}</td>
+            <td>${quantitiesHtml}</td>
             <td>${order.trangThai}</td>
             <td>${order.hoten}</td>
             <td>${order.sdt}</td>
@@ -91,10 +101,35 @@ function loadingComponent() {
     `;
 }
 
+function paginationComponent(currentPage, totalPages) {
+    let html = `
+        <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+        </li>
+    `;
+
+    for (let i = 0; i < totalPages; i++) {
+        html += `
+            <li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+            </li>
+        `;
+    }
+
+    html += `
+        <li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+        </li>
+    `;
+
+    return html;
+}
+
 // UTILS
-async function _fetchGetOrders() {
+async function _fetchGetOrders(trangthai = '', page = 0, size = 10) {
     try {
-        const response = await fetch(`/orders?userId=${currentUserIdMetaTag.content}`, {
+        const url = `/orders?userId=${currentUserIdMetaTag.content}&page=${page}&size=${size}${trangthai ? `&trangthai=${encodeURIComponent(trangthai)}` : ''}`;
+        const response = await fetch(url, {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -111,8 +146,10 @@ async function _fetchGetOrders() {
 // STATE
 const state = {
     orders: [],
-    groupedOrders: [], // Danh sách đơn hàng đã nhóm
-    initState: async () => {
+    groupedOrders: [],
+    currentPage: 0,
+    totalPages: 0,
+    initState: async (trangthai = '', page = 0) => {
         if (!currentUserIdMetaTag || !currentUserIdMetaTag.content) {
             ordersTableRootElement.innerHTML = '<p>Vui lòng đăng nhập để xem đơn hàng.</p>';
             return;
@@ -120,9 +157,12 @@ const state = {
 
         ordersTableRootElement.innerHTML = loadingComponent();
 
-        const [status, data] = await _fetchGetOrders();
+        const [status, data] = await _fetchGetOrders(trangthai, page);
         if (status === 200) {
             state.orders = data.orders || [];
+            state.currentPage = data.currentPage;
+            state.totalPages = data.totalPages;
+
             // Nhóm đơn hàng theo idHoadon
             const grouped = {};
             state.orders.forEach(order => {
@@ -160,7 +200,31 @@ const state = {
 function render() {
     const orderRowComponentsFragment = state.groupedOrders.map((order, index) => orderRowComponent(order, index)).join("");
     ordersTableRootElement.innerHTML = ordersTableComponent(orderRowComponentsFragment);
+    if (paginationRootElement) {
+        paginationRootElement.innerHTML = paginationComponent(state.currentPage, state.totalPages);
+
+        // Thêm sự kiện cho các nút phân trang
+        paginationRootElement.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = parseInt(e.target.getAttribute('data-page'));
+                if (!isNaN(page)) {
+                    const selectedStatus = document.querySelector('input[name="statusFilter"]:checked').value;
+                    state.initState(selectedStatus, page);
+                }
+            });
+        });
+    }
 }
+
+// EVENT LISTENERS
+const statusFilters = document.querySelectorAll('input[name="statusFilter"]');
+statusFilters.forEach(filter => {
+    filter.addEventListener('change', () => {
+        const selectedStatus = document.querySelector('input[name="statusFilter"]:checked').value;
+        state.initState(selectedStatus, 0);
+    });
+});
 
 // MAIN
 if (currentUserIdMetaTag) {

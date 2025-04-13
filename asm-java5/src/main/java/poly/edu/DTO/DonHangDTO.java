@@ -23,9 +23,13 @@ public class DonHangDTO {
         this.giaohang = giaohang;
     }
 
+    public DonHangDTO() {
+        // Default constructor
+    }
+
     // Constructor
     public DonHangDTO(Integer idHoadon, String tenSanPham, Double gia, Double giamGia, Integer soLuong,
-                      String trangThai, String hoten, String sdt, String diaChi, Date ngayTao, String giaohang) {
+            String trangThai, String hoten, String sdt, String diaChi, Date ngayTao, String giaohang) {
         this.idHoadon = idHoadon;
         this.tenSanPham = tenSanPham;
         this.gia = gia;

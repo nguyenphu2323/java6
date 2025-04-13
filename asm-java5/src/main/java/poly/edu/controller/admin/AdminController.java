@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import poly.edu.entity.Users;
+import poly.edu.service.HoaDonService;
 import poly.edu.service.UserService;
 
 @Controller
@@ -21,8 +22,10 @@ public class AdminController {
 	UserService userService;
 	@Autowired
 	private HttpSession session;
+	@Autowired
+	private HoaDonService hoaDonService;
 
-	@GetMapping("/admin/home") // test
+	@GetMapping("/admin") // test
 	public String home(Model model) {
 		Users currentUser = (Users) session.getAttribute("currentUser");
 		if (currentUser == null || !currentUser.isVaitro()) {
@@ -111,5 +114,33 @@ public class AdminController {
 		return "redirect:/admin/user";
 	}
 
+	@GetMapping("/admin/orderManager")
+	public String danhsachhoadon(Model model) {
+		model.addAttribute("hoadons", hoaDonService.getAllHoaDons());
+		return "/admin/orderManager";
+	}
+
+	@PostMapping("/admin/orderManager/update")
+	public String updateTrangThaiVaGiaohang(
+			@RequestParam("idHoadon") int idHoadon,
+			@RequestParam("giaohang") String giaohang,
+			@RequestParam("trangthai") String trangthai,
+			RedirectAttributes redirectAttributes) {
+
+		try {
+
+			System.out.println("ID Hóa Đơn: " + idHoadon);
+			System.out.println("Trạng Thái: " + trangthai);
+			System.out.println("Giao Hàng: " + giaohang);
+
+			hoaDonService.updateTrangThaiVaGiaohang(idHoadon, giaohang, trangthai);
+			redirectAttributes.addFlashAttribute("successMessage", "Cập nhật đơn hàng thành công!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+		}
+
+		return "redirect:/admin/orderManager";
+	}
+
 }
-//test update
+// test update

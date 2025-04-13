@@ -9,7 +9,7 @@ import jakarta.transaction.Transactional;
 import poly.edu.entity.HoaDonChiTiet;
 import poly.edu.entity.HoaDonChiTietId;
 
-public interface HoaDonChiTietRepository extends JpaRepository<HoaDonChiTiet, HoaDonChiTietId>{
+public interface HoaDonChiTietRepository extends JpaRepository<HoaDonChiTiet, HoaDonChiTietId> {
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM HoaDonChiTiet h WHERE h.hoaDon.users.idUser = :idUser")

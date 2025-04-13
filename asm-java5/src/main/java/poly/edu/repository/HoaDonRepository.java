@@ -3,6 +3,8 @@ package poly.edu.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +25,8 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
     @Query("SELECT hd FROM HoaDon hd LEFT JOIN FETCH hd.hoaDonChiTiets ct LEFT JOIN FETCH ct.sanPham WHERE hd.idHoadon = :idHoadon")
     Optional<HoaDon> findHoaDonWithDetailsById(Integer idHoadon);
+
+    Page<HoaDon> findByUsersIdUser(String idUser, Pageable pageable);
+
+    Page<HoaDon> findByUsersIdUserAndTrangthai(String idUser, String trangthai, Pageable pageable);
 }
