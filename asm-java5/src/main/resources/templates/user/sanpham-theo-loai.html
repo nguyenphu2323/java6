@@ -9,58 +9,74 @@
     <style>
         /* Định dạng chung cho card sản phẩm */
 .card {
-  border: 1px solid #000000;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
   background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: 0.3s;
-  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease;
 }
 
 .card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-/* Định dạng cho ảnh sản phẩm */
+.img-wrap {
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  height: 230px;
+  overflow: hidden;
+}
+
 .img-wrap img {
-  max-width: 100%;
-  height: auto;
-  object-fit: cover;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
-/* Định dạng tiêu đề sản phẩm */
+.card:hover .img-wrap img {
+  transform: scale(1.05);
+}
+
 .title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
-  color: #2c3e50;
-  display: block;
-  margin-top: 8px;
+  color: #2d3436;
   text-align: center;
+  margin-top: 12px;
+  line-height: 1.3;
+  min-height: 48px;
 }
 
-/* Định dạng giá sản phẩm */
 .price {
-  color: #e74c3c;
   font-size: 18px;
+  color: #e74c3c;
   font-weight: bold;
   text-align: center;
-  display: block;
 }
 
-/* Giá gạch ngang khi có giảm giá */
 .text-decoration-line-through {
   font-size: 14px;
-  color: #888;
+  color: #999;
+  text-align: center;
 }
 
-/* Nhãn giảm giá */
 .badge {
-  background-color: #27ae60;
-  color: #fff;
-  font-size: 14px;
-  padding: 5px 10px;
-  border-radius: 5px;
+  background-color: #ff6b6b;
+  font-size: 13px;
+  border-radius: 20px;
+  padding: 4px 10px;
 }
+a,
+      a:hover,
+      a:focus,
+      a:active {
+        text-decoration: none !important;
+      }
 
     </style>
 </head>
@@ -81,37 +97,40 @@
                 <a class="btn btn-secondary" th:href="@{/}" role="button" style="height: fit-content;">Xem tất cả</a>
 
             </header>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                <div th:each="sanpham : ${sanphams}" class="col">
-                    <div class="card h-100 p-3">
-                        <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="img-wrap text-center">
-                            <img width="200" height="200" class="img-fluid" th:src="@{/image/{url}(url=${sanpham.hinh})}" th:alt="${sanpham.tenSanpham}" />
-                        </a>
-                        <figcaption class="info-wrap mt-2">
-                            <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="title td-text" th:text="${sanpham.tenSanpham}"></a>
-                            <div>
-                                <div th:if="${sanpham.giamgia == 0}">
-                                    <span class="price mt-1 fw-bold">
-                                        <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                                    </span>
-                                </div>
-                                <div th:if="${sanpham.giamgia > 0}">
-                                    <span class="price mt-1 fw-bold">
-                                        <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
-                                    </span>
-                                    <span class="ms-2 text-muted text-decoration-line-through">
-                                        <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
-                                    </span>
-                                    <span class="ms-2 badge bg-info">
-                                        -<span th:text="${sanpham.giamgia}"></span>%
-                                    </span>
-                                </div>
-                            </div>
-                        </figcaption>
-                    </div>
-                </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+  <div th:each="sanpham : ${sanphams}" class="col">
+    <div class="card h-100 p-2">
+      <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="img-wrap">
+        <img class="img-fluid" th:src="@{/image/{url}(url=${sanpham.hinh})}" th:alt="${sanpham.tenSanpham}" />
+      </a>
+      <figcaption class="info-wrap px-3 pb-3">
+        <a th:href="@{/sanpham(id=${sanpham.idSanpham})}" class="title" th:text="${sanpham.tenSanpham}"></a>
+
+        <div class="mt-2 text-center">
+          <div th:if="${sanpham.giamgia == 0}">
+            <span class="price">
+              <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
+            </span>
+          </div>
+          <div th:if="${sanpham.giamgia > 0}">
+            <span class="price">
+              <span th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"></span>₫
+            </span>
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-1">
+              <span class="text-muted text-decoration-line-through">
+                <span th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"></span>₫
+              </span>
+              <span class="badge bg-danger">
+                -<span th:text="${sanpham.giamgia}"></span>%
+              </span>
             </div>
+          </div>
         </div>
+      </figcaption>
+    </div>
+  </div>
+</div>
+
     </section>
 
     <th:block th:replace="~{user/_footer}" />

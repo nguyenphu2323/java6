@@ -1,86 +1,112 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chi tiết đơn hàng</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Font Awesome (cho các icon, nếu cần) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .container {
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-        .card {
-            margin-bottom: 20px;
-        }
-        .table th, .table td {
-            vertical-align: middle;
-        }
-        .table th {
-            background-color: #e9ecef;
-        }
+      body {
+        background-color: #f8f9fa;
+      }
+      .container {
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
+      .card {
+        margin-bottom: 20px;
+      }
+      .table th,
+      .table td {
+        vertical-align: middle;
+      }
+      .table th {
+        background-color: #e9ecef;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Trang chủ</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart">Giỏ hàng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/orders">Đơn hàng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">Đăng xuất</a>
-                    </li>
-                </ul>
-            </div>
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Trang chủ</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/cart">Giỏ hàng</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/user/orders">Đơn hàng</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Đăng xuất</a>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
 
     <!-- Nội dung chính -->
     <div class="container">
-        <h2 class="mb-4">Chi tiết đơn hàng</h2>
-        <div id="order-details">
-            <!-- Thông tin đơn hàng -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Thông tin đơn hàng</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Mã đơn hàng:</strong> <span id="order-id"></span></p>
-                    <p><strong>Ngày tạo:</strong> <span id="order-date"></span></p>
-                    <p><strong>Trạng thái:</strong> <span id="order-status"></span></p>
-                    <p><strong>Địa chỉ:</strong> <span id="order-address"></span></p>
-                    <p><strong>Giao hàng:</strong> <span id="order-delivery"></span></p>
-                </div>
-            </div>
+      <h2 class="mb-4">Chi tiết đơn hàng</h2>
+      <div id="order-details">
+        <!-- Thông tin đơn hàng -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Thông tin đơn hàng</h5>
+          </div>
+          <div class="card-body">
+            <dl class="row mb-0">
+              <dt class="col-sm-3">Mã đơn hàng:</dt>
+              <dd class="col-sm-9" id="order-id"></dd>
 
-            <!-- Danh sách sản phẩm trong đơn hàng -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Sản phẩm trong đơn hàng</h5>
-                </div>
-                <div class="card-body">
-                    <div id="order-items-table">
-                        <!-- Nội dung sẽ được render bởi JavaScript -->
-                    </div>
-                </div>
-            </div>
+              <dt class="col-sm-3">Ngày tạo:</dt>
+              <dd class="col-sm-9" id="order-date"></dd>
+
+              <dt class="col-sm-3">Trạng thái:</dt>
+              <dd class="col-sm-9" id="order-status"></dd>
+
+              <dt class="col-sm-3">Địa chỉ:</dt>
+              <dd class="col-sm-9" id="order-address"></dd>
+
+              <dt class="col-sm-3">Giao hàng:</dt>
+              <dd class="col-sm-9" id="order-delivery"></dd>
+            </dl>
+          </div>
         </div>
+
+        <!-- Danh sách sản phẩm trong đơn hàng -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Sản phẩm trong đơn hàng</h5>
+          </div>
+          <div class="card-body">
+            <div id="order-items-table">
+              <!-- Nội dung sẽ được render bởi JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap JS và Popper.js -->
@@ -88,45 +114,50 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <!-- JavaScript để lấy và hiển thị chi tiết đơn hàng -->
     <script>
-        // Lấy orderId từ query string
-        const urlParams = new URLSearchParams(window.location.search);
-        const orderId = urlParams.get('id');
+      // Lấy orderId từ query string
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get("id");
 
-        // Hàm lấy chi tiết đơn hàng
-        async function fetchOrderDetails() {
-            try {
-                const response = await fetch(`/order-details?orderId=${orderId}`, {
-                    method: "GET",
-                    headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json",
-                    },
-                });
-                const [status, data] = [response.status, await response.json()];
+      // Hàm lấy chi tiết đơn hàng
+      async function fetchOrderDetails() {
+        try {
+          const response = await fetch(`/order-details?orderId=${orderId}`, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          });
+          const [status, data] = [response.status, await response.json()];
 
-                if (status === 200) {
-                    const order = data.order;
-                    const orderDetails = data.orderDetails;
+          if (status === 200) {
+            const order = data.order;
+            const orderDetails = data.orderDetails;
 
-                    // Hiển thị thông tin đơn hàng
-                    document.getElementById('order-id').textContent = order.idHoadon;
-                    document.getElementById('order-date').textContent = new Date(order.ngayTao).toLocaleDateString('vi-VN');
-                    document.getElementById('order-status').textContent = order.trangThai;
-                    document.getElementById('order-address').textContent = order.diaChi;
-                    document.getElementById('order-delivery').textContent = order.giaoHang;
+            // Hiển thị thông tin đơn hàng
+            document.getElementById("order-id").textContent = order.idHoadon;
+            document.getElementById("order-date").textContent = new Date(
+              order.ngayTao
+            ).toLocaleDateString("vi-VN");
+            document.getElementById("order-status").textContent =
+              order.trangThai;
+            document.getElementById("order-address").textContent = order.diaChi;
+            document.getElementById("order-delivery").textContent =
+              order.giaoHang;
 
-                    // Hiển thị danh sách sản phẩm trong đơn hàng
-                    const orderItemsTable = document.getElementById('order-items-table');
-                    if (orderDetails.length === 0) {
-                        orderItemsTable.innerHTML = `
+            // Hiển thị danh sách sản phẩm trong đơn hàng
+            const orderItemsTable =
+              document.getElementById("order-items-table");
+            if (orderDetails.length === 0) {
+              orderItemsTable.innerHTML = `
                             <div class="alert alert-info" role="alert">
                                 Không có sản phẩm trong đơn hàng.
                             </div>
                         `;
-                        return;
-                    }
+              return;
+            }
 
-                    const tableHtml = `
+            const tableHtml = `
                         <div class="table-responsive">
                             <table class="table table-borderless">
                                 <thead class="text-muted">
@@ -138,38 +169,45 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${orderDetails.map(item => `
+                                    ${orderDetails
+                                      .map(
+                                        (item) => `
                                         <tr>
                                             <td>${item.sanPham.tenSanPham}</td>
                                             <td>${item.sanPham.gia}</td>
                                             <td>${item.sanPham.giamGia}</td>
                                             <td>${item.soLuong}</td>
                                         </tr>
-                                    `).join('')}
+                                    `
+                                      )
+                                      .join("")}
                                 </tbody>
                             </table>
                         </div>
                     `;
-                    orderItemsTable.innerHTML = tableHtml;
-                } else {
-                    document.getElementById('order-details').innerHTML = `
+            orderItemsTable.innerHTML = tableHtml;
+          } else {
+            document.getElementById("order-details").innerHTML = `
                         <div class="alert alert-danger" role="alert">
-                            ${data.message || 'Đã có lỗi khi lấy chi tiết đơn hàng!'}
+                            ${
+                              data.message ||
+                              "Đã có lỗi khi lấy chi tiết đơn hàng!"
+                            }
                         </div>
                     `;
-                }
-            } catch (error) {
-                console.error("Error fetching order details:", error);
-                document.getElementById('order-details').innerHTML = `
+          }
+        } catch (error) {
+          console.error("Error fetching order details:", error);
+          document.getElementById("order-details").innerHTML = `
                     <div class="alert alert-danger" role="alert">
                         Lỗi kết nối đến server!
                     </div>
                 `;
-            }
         }
+      }
 
-        // Gọi hàm lấy chi tiết đơn hàng khi trang được tải
-        window.onload = fetchOrderDetails;
+      // Gọi hàm lấy chi tiết đơn hàng khi trang được tải
+      window.onload = fetchOrderDetails;
     </script>
-</body>
+  </body>
 </html>
