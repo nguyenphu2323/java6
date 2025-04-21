@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <th:block th:replace="~{user/_meta}" />
+    <title>Đăng ký</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f1f0ec;
+        color: #ffffff;
+      }
+
+      .card {
+        background-color: #f1f1f1;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+      }
+
+      .card:hover {
+        transform: scale(1.05);
+        transition: 0.3s;
+      }
+
+      .btn-primary {
+        background-color: #03dac5;
+        color: #000;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background-color: #018786;
+      }
+
+      .alert-success {
+        background-color: #00c853;
+        color: #000;
+        border: none;
+      }
+
+      .alert-danger {
+        background-color: #cf6679;
+        color: #000;
+        border: none;
+      }
+
+      a {
+        color: #bb86fc;
+      }
+
+      a:hover {
+        color: #ff79b0;
+      }
+      .btn-dark,
+      .btn-outline-dark {
+        border-radius: 50px;
+        padding: 6px 18px;
+        transition: all 0.3s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body>
+    <
+    <header class="bg-white shadow-sm sticky-top py-2">
+      <div class="container d-flex justify-content-between align-items-center">
+        <a class="text-dark fw-bold fs-3 text-decoration-none" th:href="@{/}">
+          <i class="bi bi-bag-heart-fill text-danger me-2"></i>SHOP FASHION
+        </a>
+        <form th:action="@{/search}" method="get" class="d-flex w-50">
+          <input
+            type="text"
+            name="q"
+            th:value="${query}"
+            class="form-control rounded-start-pill border-dark-subtle"
+            placeholder="Tìm sản phẩm bạn muốn..."
+          />
+          <button class="btn btn-dark rounded-end-pill px-4" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+        <div class="d-flex align-items-center gap-3">
+          <a th:href="@{/cart}" class="btn position-relative p-0">
+            <i class="bi bi-cart3 fs-4 text-dark"></i>
+            <span
+              id="total-cart-items-quantity"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              >...</span
+            >
+          </a>
+          <div th:if="${session.currentUser != null}">
+            <a
+              th:href="@{/account}"
+              class="text-dark text-decoration-none me-2"
+            >
+              <i class="bi bi-person-circle fs-4"></i>
+            </a>
+            <a th:href="@{/signout}" class="btn btn-outline-dark btn-sm"
+              >Đăng xuất</a
+            >
+          </div>
+          <div th:if="${session.currentUser == null}">
+            <a class="btn btn-dark btn-sm me-2" th:href="@{/signin}"
+              >Đăng nhập</a
+            >
+            <a class="btn btn-outline-dark btn-sm" th:href="@{/signup}"
+              >Đăng ký</a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-light border-top border-bottom shadow-sm"
+    >
+      <div class="container">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle fw-semibold"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-grid-3x3-gap-fill"></i> Danh mục
+              </a>
+              <ul class="dropdown-menu">
+                <li th:each="loai : ${loais}">
+                  <a
+                    class="dropdown-item"
+                    th:href="@{/loai(id=${loai.idLoai})}"
+                    th:text="${loai.tenLoai}"
+                  ></a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" th:href="@{/loai-all}"
+                    >Tất cả danh mục</a
+                  >
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/product-new}">Sản phẩm mới</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section class="section-content" style="margin: 100px 0">
+      <div class="card mx-auto" style="max-width: 380px">
+        <div class="card-body">
+          <div
+            th:if="${successMessage}"
+            class="alert alert-success"
+            role="alert"
+            th:text="${successMessage}"
+          ></div>
+          <div
+            th:if="${errorMessage}"
+            class="alert alert-danger"
+            role="alert"
+            th:text="${errorMessage}"
+          ></div>
+
+          <h4 class="card-title mb-4">Đăng ký</h4>
+          <form th:action="@{/signup}" method="post">
+            <div class="mb-3">
+              <label for="inputEmail" class="form-label">Email</label>
+              <input
+                type="email"
+                id="inputEmail"
+                name="idUser"
+                class="form-control"
+                th:value="${user.idUser}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="inputPassword" class="form-label">Mật khẩu</label>
+              <input
+                type="password"
+                id="inputPassword"
+                name="matkhau"
+                class="form-control"
+                th:value="${user.matkhau}"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="inputFullname" class="form-label">Họ và tên</label>
+              <input
+                type="text"
+                id="inputFullname"
+                name="hoten"
+                class="form-control"
+                th:value="${user.hoten}"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="inputPhoneNumber" class="form-label"
+                >Số điện thoại</label
+              >
+              <input
+                type="text"
+                id="inputPhoneNumber"
+                name="sdt"
+                class="form-control"
+                th:value="${user.sdt}"
+                required
+                pattern="0[0-9]{9}"
+                title="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0"
+              />
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100">Đăng ký</button>
+          </form>
+        </div>
+      </div>
+      <p class="text-center text-dark mt-4">
+        Đã có tài khoản?
+        <a th:href="@{/signin}" class="text-dark text-decoration-none"
+          >Đăng nhập</a
+        >
+      </p>
+    </section>
+
+    <th:block th:replace="~{user/_footer}" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

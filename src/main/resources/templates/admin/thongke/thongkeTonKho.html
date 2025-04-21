@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống Kê Tồn Kho</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        select {
+            display: block;
+            margin: 0 auto 30px auto;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        thead {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+            margin: 40px auto;
+            max-width: 700px;
+            max-height: 350px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dropdown chọn loại thống kê -->
+    <select onchange="location = this.value;">
+        <option value="#">-- Chọn Thống Kê --</option>
+        <option value="/admin/thongkeTonKho" selected>Thống Kê Tồn Kho</option>
+        <option value="/admin/thongkeDoanhThu">Thống Kê Doanh Thu Theo Ngày</option>
+        <option value="/admin/thongkeSanPhamBanChay">Thống Kê Sản Phẩm Bán Chạy</option>
+    </select>
+
+    <!-- Tiêu đề và bảng -->
+    <h2>Thống Kê Tồn Kho</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tên Loại</th>
+                <th>Số Lượng Sản Phẩm</th>
+                <th>Tổng Số Lượng</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${thongKeTonKho}">
+                <td th:text="${item[0]}"></td>
+                <td th:text="${item[1]}"></td>
+                <td th:text="${item[2]}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Biểu đồ -->
+    <canvas id="barChart"></canvas>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const rawData = /*[[${thongKeTonKho}]]*/ [];
+        const labels = rawData.map(item => item[0]);
+        const dataValues = rawData.map(item => item[1]);
+
+        const ctx = document.getElementById('barChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số Lượng Sản Phẩm',
+                    data: dataValues,
+                    backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                    borderColor: 'rgba(39, 174, 96, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

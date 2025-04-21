@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống Kê Sản Phẩm Bán Chạy</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Cấu trúc chung */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        /* Dropdown chọn loại thống kê */
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Bảng hiển thị */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        td {
+            background-color: #fafafa;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* Điều chỉnh đường viền bảng, chiều rộng */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        /* Biểu đồ */
+        canvas {
+            display: block;
+            margin: 30px auto 0;
+            width: 80%;
+            max-width: 800px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Thống Kê Sản Phẩm Bán Chạy</h2>
+
+        <!-- Dropdown chọn loại thống kê -->
+        <select onchange="location = this.value;">
+            <option value="#">-- Chọn Thống Kê --</option>
+            <option value="/admin/thongkeTonKho">Thống Kê Tồn Kho</option>
+            <option value="/admin/thongkeDoanhThu">Thống Kê Doanh Thu Theo Ngày</option>
+            <option value="/admin/thongkeSanPhamBanChay" selected>Thống Kê Sản Phẩm Bán Chạy</option>
+        </select>
+
+        <!-- Bảng hiển thị sản phẩm bán chạy -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Số Lượng Đã Bán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lặp qua danh sách thống kê sản phẩm bán chạy -->
+                    <tr th:each="item : ${thongKeSanPhamBanChay}">
+                        <td th:text="${item[0]}"></td>
+                        <td th:text="${item[1]}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Biểu đồ sản phẩm bán chạy -->
+        <canvas id="sanPhamBanChayChart"></canvas>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const rawData = /*[[${thongKeSanPhamBanChay}]]*/ [];  // Dữ liệu thống kê sản phẩm bán chạy
+        const labels = rawData.map(item => item[0]);     // Tên sản phẩm
+        const data = rawData.map(item => item[1]);       // Số lượng đã bán
+
+        // Vẽ biểu đồ
+        const ctx = document.getElementById('sanPhamBanChayChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số lượng bán (Sản phẩm)',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',  // Màu xanh lá cây nhạt
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            callback: function(value) {
+                                return value.toLocaleString("vi-VN");  // Định dạng số lượng
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.raw.toLocaleString("vi-VN");
+                                return `Số lượng bán: ${value}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+
+</body>
+</html>

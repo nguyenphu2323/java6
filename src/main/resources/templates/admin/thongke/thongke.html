@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn Thống Kê</title>
+</head>
+<body>
+    <h1>Chọn Thống Kê</h1>
+    
+    <!-- Dropdown cho lựa chọn thống kê -->
+    <form action="#" method="get">
+        <select onchange="location = this.value;">
+            <option value="#">Chọn Thống Kê</option>
+            <option value="/admin/thongkeTonKho">Thống Kê Tồn Kho</option>
+            <option value="/admin/thongkeDoanhThu">Thống Kê Doanh Thu Theo Ngày</option>
+            <option value="/admin/thongkeSanPhamBanChay">Thống Kê Sản Phẩm Bán Chạy</option>
+        </select>
+    </form>
+</body>
+</html>

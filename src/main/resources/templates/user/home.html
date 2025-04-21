@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <th:block th:replace="~{user/_meta}" />
+    <title>Trang chủ</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #2d2d2d;
+        line-height: 1.6;
+      }
+
+      /* Tiêu đề section */
+      .section-title {
+        font-weight: 700;
+        background: linear-gradient(to right, #1d3557, #457b9d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2rem;
+      }
+
+      /* Nút tùy chỉnh */
+      .btn-custom {
+        background: #1d3557;
+        color: white;
+        border-radius: 25px;
+        padding: 10px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-custom:hover {
+        background: #0e2a47;
+        transform: translateY(-2px);
+      }
+
+      /* Thẻ danh mục sản phẩm */
+      .card.category-card {
+        padding: 16px 12px;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease-in-out;
+        background-color: #ffffff;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .card.category-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      }
+
+      .category-card a {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d2d2d;
+        transition: color 0.3s ease;
+      }
+
+      .category-card a:hover {
+        color: #1d3557;
+      }
+
+      /* Thẻ sản phẩm */
+      .card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease-in-out;
+        background-color: #ffffff;
+      }
+
+      .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Hình ảnh */
+      .img-wrap img {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 14px;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .img-wrap:hover img {
+        transform: scale(1.03);
+      }
+
+      /* Giá sản phẩm */
+      .price {
+        color: #e63946;
+        font-weight: 600;
+        font-size: 1.15rem;
+      }
+
+      .old-price {
+        text-decoration: line-through;
+        color: #aaa;
+        font-size: 0.9rem;
+      }
+
+      .badge-sale {
+        background: linear-gradient(45deg, #e63946, #f37272);
+        color: white;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 12px;
+        margin-left: 6px;
+      }
+
+      /* Phân trang */
+      .pagination .page-item.active .page-link {
+        background-color: #1d3557;
+        border-color: #1d3557;
+        color: #fff;
+        border-radius: 50%;
+      }
+
+      .pagination .page-link {
+        color: #1d3557;
+        border-radius: 50%;
+        margin: 0 4px;
+        transition: background-color 0.2s;
+      }
+
+      a {
+        text-decoration: none;
+        color: #2d2d2d;
+        transition: color 0.3s ease;
+      }
+
+      a:hover {
+        color: #457b9d;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .section-title {
+          font-size: 1.5rem;
+        }
+
+        .img-wrap img {
+          height: 160px;
+        }
+
+        .row-cols-md-3 {
+          row-gap: 1.5rem;
+        }
+      }
+      a,
+      a:hover,
+      a:focus,
+      a:active {
+        text-decoration: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <th:block th:replace="~{user/_header}" />
+
+    <!-- Danh mục sản phẩm -->
+    <section class="section-content mb-4">
+      <div class="container">
+        <header
+          class="section-heading py-4 d-flex justify-content-between align-items-center"
+        >
+          <h3 class="section-title">Danh mục sản phẩm</h3>
+          <a class="btn btn-custom" th:href="@{/category-all}">Xem tất cả</a>
+        </header>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+          <div th:each="loai : ${loais}" class="col">
+            <div class="card category-card text-center">
+              <a
+                th:href="@{/sanpham-theo-loai(idLoai=${loai.idLoai})}"
+                class="stretched-link"
+                th:text="${loai.tenLoai}"
+              ></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- user/home.html -->
+    <section class="section-content mb-5">
+      <div class="container">
+        <header
+          class="section-heading py-4 d-flex justify-content-between align-items-center"
+        >
+          <h3 class="section-title">Sản phẩm mới nhất</h3>
+        </header>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          <!-- Hiển thị danh sách sản phẩm -->
+          <div th:each="sanpham : ${sanphams}" class="col">
+            <div class="card h-150 p-3">
+              <a
+                th:href="@{/sanpham(id=${sanpham.idSanpham})}"
+                class="img-wrap text-center"
+              >
+                <img
+                  class="img-fluid"
+                  th:src="@{/image/{url}(url=${sanpham.hinh})}"
+                  th:alt="${sanpham.tenSanpham}"
+                />
+              </a>
+              <figcaption class="info-wrap mt-2 text-center">
+                <a
+                  th:href="@{/sanpham(id=${sanpham.idSanpham})}"
+                  class="title d-block fw-bold"
+                  th:text="${sanpham.tenSanpham}"
+                ></a>
+                <div class="mt-2">
+                  <span class="price">
+                    <span
+                      th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"
+                    ></span
+                    >₫
+                  </span>
+                  <span th:if="${sanpham.giamgia > 0}" class="ms-2 old-price">
+                    <span
+                      th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"
+                    ></span
+                    >₫
+                  </span>
+                  <span th:if="${sanpham.giamgia > 0}" class="badge-sale ms-2">
+                    -<span th:text="${sanpham.giamgia}"></span>%
+                  </span>
+                </div>
+              </figcaption>
+            </div>
+          </div>
+        </div>
+        <!-- Phân trang -->
+        <nav
+          aria-label="Page navigation example"
+          class="mt-4 d-flex justify-content-center"
+        >
+          <ul class="pagination">
+            <!-- Nút Previous -->
+            <li
+              class="page-item"
+              th:classappend="${currentPage == 0} ? 'disabled'"
+            >
+              <a
+                class="page-link"
+                th:href="@{/(page=${currentPage - 1}, size=${pageSize})}"
+                >Previous</a
+              >
+            </li>
+            <!-- Các nút trang -->
+            <li
+              th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+              class="page-item"
+              th:classappend="${i == currentPage} ? 'active'"
+            >
+              <a
+                class="page-link"
+                th:href="@{/(page=${i}, size=${pageSize})}"
+                th:text="${i + 1}"
+              ></a>
+            </li>
+            <!-- Nút Next -->
+            <li
+              class="page-item"
+              th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+            >
+              <a
+                class="page-link"
+                th:href="@{/(page=${currentPage + 1}, size=${pageSize})}"
+                >Next</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+
+    <th:block th:replace="~{user/_footer}" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

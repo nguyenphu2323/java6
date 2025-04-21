@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <th:block th:replace="~{user/_meta}" />
+    <title th:text="${sanpham.tenSanpham}"></title>
+
+    <!-- Custom Scripts -->
+    <script th:src="@{/js/toast.js}" type="module"></script>
+    <script th:src="@{/js/product.js}" type="module"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      a,
+      a:hover,
+      a:focus,
+      a:active {
+        text-decoration: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <th:block th:replace="~{user/_header}" />
+
+    <section class="section-content padding-y">
+      <div class="container">
+        <div class="row">
+          <!-- Ảnh sản phẩm -->
+          <aside class="col-md-6 text-center">
+            <img
+              class="img-fluid rounded shadow-sm p-2"
+              th:src="@{/image/{url}(url=${sanpham.hinh})}"
+              alt="${sanpham.tenSanpham}"
+              style="max-height: 400px; object-fit: contain"
+            />
+          </aside>
+
+          <!-- Thông tin sản phẩm -->
+          <main class="col-md-6">
+            <h2 class="fw-bold mb-3" th:text="${sanpham.tenSanpham}"></h2>
+
+            <!-- Đã mua -->
+            <div class="text-muted mb-3">
+              <i class="fa-solid fa-bag-shopping text-success me-1"></i>
+              <small th:text="${luotMua} + ' lượt mua'"></small>
+            </div>
+
+            <!-- Giá -->
+            <div class="mb-4">
+              <div th:if="${sanpham.giamgia == 0}">
+                <span class="fs-3 fw-bold text-danger">
+                  <span
+                    th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"
+                  ></span
+                  >₫
+                </span>
+              </div>
+              <div th:if="${sanpham.giamgia > 0}">
+                <span class="fs-3 fw-bold text-danger">
+                  <span
+                    th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"
+                  ></span
+                  >₫
+                </span>
+                <span class="ms-2 text-muted text-decoration-line-through">
+                  <span
+                    th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"
+                  ></span
+                  >₫
+                </span>
+                <span class="ms-2 badge bg-danger">
+                  -<span th:text="${sanpham.giamgia}"></span>%
+                </span>
+              </div>
+            </div>
+
+            <!-- Thông tin chi tiết -->
+            <dl class="row mb-3">
+              <dt class="col-sm-4">Số lượng tồn kho:</dt>
+              <dd class="col-sm-8">
+                <span th:if="${sanpham.soluong == 0}" class="text-danger"
+                  >Hết hàng</span
+                >
+                <span
+                  th:if="${sanpham.soluong > 0}"
+                  th:text="${sanpham.soluong}"
+                ></span>
+              </dd>
+
+              <dt class="col-sm-4">Danh mục:</dt>
+              <dd class="col-sm-8">
+                <a
+                  th:href="@{/loai(id=${sanpham.loai.idLoai})}"
+                  class="text-decoration-none"
+                  th:text="${sanpham.loai.tenLoai}"
+                ></a>
+              </dd>
+
+              <dt class="col-sm-4">Mô tả ngắn:</dt>
+              <dd class="col-sm-8" th:text="${sanpham.motangan}"></dd>
+            </dl>
+
+            <!-- Chọn số lượng và nút -->
+            <div class="d-flex align-items-center mb-3">
+              <label for="cart-item-quantity" class="me-2 fw-semibold"
+                >Số lượng:</label
+              >
+              <input
+                type="number"
+                id="cart-item-quantity"
+                class="form-control w-25"
+                value="1"
+                min="1"
+                th:attr="max=${sanpham.soluong}"
+              />
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+              <button
+                th:disabled="${sanpham.soluong==0}"
+                type="button"
+                class="btn btn-primary px-4"
+                id="buy-now"
+              >
+                <i class="fa-solid fa-bolt-lightning me-1"></i> Mua ngay
+              </button>
+              <button
+                th:disabled="${sanpham.soluong==0}"
+                type="button"
+                class="btn btn-outline-danger px-4"
+                id="add-cart-item"
+              >
+                <i class="fa-solid fa-cart-plus me-1"></i> Thêm vào giỏ
+              </button>
+            </div>
+          </main>
+        </div>
+      </div>
+    </section>
+
+    <!-- section-content.// -->
+
+    <section class="section-content mb-4">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h3 class="pb-2">Mô tả sản phẩm</h3>
+            <div th:text="${sanpham.mota}"></div>
+          </div>
+        </div>
+      </div>
+      <!-- container.// -->
+    </section>
+    <!-- section-content.// -->
+
+    <section class="section-content mb-5">
+      <div class="container">
+        <h3 class="pb-2">Sản phẩm liên quan</h3>
+        <div class="row item-grid">
+          <div
+            th:each="sanpham : ${sanphams}"
+            class="col-xl-3 col-lg-4 col-md-6"
+          >
+            <div class="card p-3 mb-4">
+              <a
+                th:href="@{/sanpham(id=${sanpham.idSanpham})}"
+                class="img-wrap text-center"
+              >
+                <img
+                  width="200"
+                  height="200"
+                  class="img-fluid"
+                  th:src="@{/image/{url}(url=${sanpham.hinh})}"
+                  th:alt="${sanpham.tenSanpham}"
+                />
+              </a>
+              <figcaption class="info-wrap mt-2">
+                <a
+                  th:href="@{/sanpham(id=${sanpham.idSanpham})}"
+                  class="title td-text"
+                  th:text="${sanpham.tenSanpham}"
+                ></a>
+                <div>
+                  <div th:if="${sanpham.giamgia == 0}">
+                    <span class="price mt-1 fw-bold">
+                      <span
+                        th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"
+                      ></span
+                      >₫
+                    </span>
+                  </div>
+                  <div th:if="${sanpham.giamgia > 0}">
+                    <span class="price mt-1 fw-bold">
+                      <span
+                        th:text="${#numbers.formatInteger(sanpham.gia * (100 - sanpham.giamgia) / 100, 0, 'COMMA')}"
+                      ></span
+                      >₫
+                    </span>
+                    <span class="ms-2 text-muted text-decoration-line-through">
+                      <span
+                        th:text="${#numbers.formatInteger(sanpham.gia, 0, 'COMMA')}"
+                      ></span
+                      >₫
+                    </span>
+                    <span class="ms-2 badge bg-info">
+                      -<span th:text="${sanpham.giamgia}"></span>%
+                    </span>
+                  </div>
+                </div>
+              </figcaption>
+            </div>
+          </div>
+          <!-- col.// -->
+        </div>
+        <!-- row.// -->
+      </div>
+      <!-- container.// -->
+    </section>
+    <!-- section-content.// -->
+
+    <th:block th:replace="~{user/_footer}" />
+
+    <div class="toast-container position-fixed bottom-0 start-0 p-3"></div>
+    <!-- toast-container.// -->
+  </body>
+</html>

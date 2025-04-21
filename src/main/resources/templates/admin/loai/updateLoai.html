@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{user/_meta}" />
+    <title>Cập nhật loại hàng</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .form-container {
+        border-radius: 16px;
+        background-color: #ffffff;
+        padding: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .btn-custom {
+        border-radius: 30px;
+        padding: 8px 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <th:block th:replace="~{admin/_headerAdmin}" />
+
+    <section class="container py-5">
+      <div class="col-lg-6 mx-auto form-container">
+        <h4 class="mb-4 text-primary">
+          <i class="bi bi-pencil-square me-2"></i>Cập nhật loại hàng
+        </h4>
+
+        <form
+          method="POST"
+          th:action="@{/admin/loai/update/{id}(id=${loai.idLoai})}"
+          autocomplete="off"
+        >
+          <div
+            th:if="${successMessage}"
+            class="alert alert-success rounded-pill px-4"
+            role="alert"
+            th:text="${successMessage}"
+          ></div>
+          <div
+            th:if="${errorMessage}"
+            class="alert alert-danger rounded-pill px-4"
+            role="alert"
+            th:text="${errorMessage}"
+          ></div>
+
+          <input
+            type="hidden"
+            class="form-control"
+            th:value="${loai.idLoai}"
+            name="idLoai"
+            id="idLoai"
+            required
+          />
+
+          <div class="mb-3">
+            <label for="tenLoai" class="form-label"
+              >Tên loại <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control rounded-pill px-4"
+              th:value="${loai.tenLoai}"
+              id="tenLoai"
+              name="tenLoai"
+              required
+            />
+          </div>
+
+          <div class="d-flex justify-content-start mt-4">
+            <button type="submit" class="btn btn-warning btn-custom me-3">
+              <i class="bi bi-save me-1"></i> Cập nhật
+            </button>
+            <a
+              class="btn btn-outline-danger btn-custom"
+              th:href="@{/admin/loai}"
+              role="button"
+              onclick="return confirm('Bạn có muốn hủy?')"
+            >
+              <i class="bi bi-x-circle me-1"></i> Hủy
+            </a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <th:block th:replace="~{admin/_footerAdmin}" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
