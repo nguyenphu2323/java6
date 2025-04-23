@@ -1,7 +1,10 @@
 package poly.edu.controller.admin;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import poly.edu.entity.Users;
+import poly.edu.repository.ThongKeRepository;
 import poly.edu.service.HoaDonService;
 import poly.edu.service.UserService;
 
@@ -24,6 +28,13 @@ public class AdminController {
 	private HttpSession session;
 	@Autowired
 	private HoaDonService hoaDonService;
+	private final ThongKeRepository thongKeRepository;
+
+	@Autowired
+	public AdminController(ThongKeRepository thongKeRepository) {
+		this.thongKeRepository = thongKeRepository;
+
+	}
 
 	@GetMapping("/admin") // test
 	public String home(Model model) {
@@ -31,6 +42,19 @@ public class AdminController {
 		if (currentUser == null || !currentUser.isVaitro()) {
 			return "redirect:/";
 		}
+
+		// Thống kê tồn kho
+		List<Object[]> thongKeTonKho = thongKeRepository.thongKeTonKho();
+		model.addAttribute("thongKeTonKho", thongKeTonKho);
+
+		// Thống kê doanh thu theo ngày
+		List<Object[]> thongKeDoanhThuTheoNgay = thongKeRepository.thongKeDoanhThuTheoNgay();
+		model.addAttribute("thongKeDoanhThuTheoNgay", thongKeDoanhThuTheoNgay);
+
+		// Thống kê sản phẩm bán chạy
+		List<Object[]> thongKeSanPhamBanChay = thongKeRepository.thongKeSanPhamBanChay();
+		model.addAttribute("thongKeSanPhamBanChay", thongKeSanPhamBanChay);
+
 		return "admin/home";
 	}
 
@@ -60,11 +84,13 @@ public class AdminController {
 
 	@PostMapping("/admin/user/create")
 	public String userInsert(Model model, @ModelAttribute("user") Users user) {
+
 		try {
 			Users currentUser = (Users) session.getAttribute("currentUser");
 			if (currentUser == null || !currentUser.isVaitro()) {
 				return "redirect:/";
 			}
+
 			userService.register(user);
 			model.addAttribute("successMessage", "Tạo tài khoản thành công");
 		} catch (Exception e) {
@@ -140,6 +166,30 @@ public class AdminController {
 		}
 
 		return "redirect:/admin/orderManager";
+	}
+
+	// Thống kê tồn kho
+	@GetMapping("/admin/thongkeTonKho")
+	public String thongKeTonKho(Model model) {
+		List<Object[]> thongKeTonKho = thongKeRepository.thongKeTonKho();
+		model.addAttribute("thongKeTonKho", thongKeTonKho);
+		return "/admin/thongke/thongkeTonKho";
+	}
+
+	// Thống kê doanh thu theo ngày
+	@GetMapping("/admin/thongkeDoanhThu")
+	public String thongKeDoanhThu(Model model) {
+		List<Object[]> thongKeDoanhThuTheoNgay = thongKeRepository.thongKeDoanhThuTheoNgay();
+		model.addAttribute("thongKeDoanhThuTheoNgay", thongKeDoanhThuTheoNgay);
+		return "/admin/thongke/thongkeDoanhThu";
+	}
+
+	// Thống kê sản phẩm bán chạy
+	@GetMapping("/admin/thongkeSanPhamBanChay")
+	public String thongKeSanPhamBanChay(Model model) {
+		List<Object[]> thongKeSanPhamBanChay = thongKeRepository.thongKeSanPhamBanChay();
+		model.addAttribute("thongKeSanPhamBanChay", thongKeSanPhamBanChay);
+		return "/admin/thongke/thongkeSanPhamBanChay";
 	}
 
 }

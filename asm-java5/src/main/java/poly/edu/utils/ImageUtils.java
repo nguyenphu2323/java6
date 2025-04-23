@@ -11,7 +11,7 @@ import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ImageUtils {
-	private static final Path IMAGE_DIR = Paths.get("c:\\var\\java5\\images");
+	private static final Path IMAGE_DIR = Paths.get("D:\\java\\abbb\\java6\\image");
 
 	public static Optional<String> upload(MultipartFile multipartFile) {
 		Optional<String> imageName = Optional.empty();

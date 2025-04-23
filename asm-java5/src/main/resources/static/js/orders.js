@@ -50,7 +50,6 @@ function orderRowComponent(order, index) {
             <td>${order.giaohang}</td>
             <td>${new Date(order.ngayTao).toLocaleDateString('vi-VN')}</td>
             <td>${new Intl.NumberFormat('vi-VN').format(totalPrice)} VNĐ</td>
-            
         </tr>
     `;
 }
@@ -80,7 +79,6 @@ function ordersTableComponent(orderRowComponentsFragment) {
                         <th scope="col">Giao hàng</th>
                         <th scope="col">Ngày tạo</th>
                         <th scope="col">Tổng cộng</th>
-                        
                     </tr>
                 </thead>
                 <tbody>${orderRowComponentsFragment}</tbody>
@@ -127,6 +125,7 @@ function paginationComponent(currentPage, totalPages) {
 async function _fetchGetOrders(trangthai = '', page = 0, size = 10) {
     try {
         const url = `/orders?userId=${currentUserIdMetaTag.content}&page=${page}&size=${size}${trangthai ? `&trangthai=${encodeURIComponent(trangthai)}` : ''}`;
+        console.log("Fetching orders with URL:", url); // Thêm log để kiểm tra
         const response = await fetch(url, {
             method: "GET",
             headers: {
@@ -134,7 +133,9 @@ async function _fetchGetOrders(trangthai = '', page = 0, size = 10) {
                 "Content-Type": "application/json",
             },
         });
-        return [response.status, await response.json()];
+        const data = await response.json();
+        console.log("API response:", data); // Thêm log để kiểm tra dữ liệu trả về
+        return [response.status, data];
     } catch (error) {
         console.error("Error fetching orders:", error);
         return [500, { message: "Lỗi kết nối đến server!" }];
@@ -184,6 +185,7 @@ const state = {
                 });
             });
             state.groupedOrders = Object.values(grouped);
+            console.log("Grouped orders:", state.groupedOrders); // Thêm log để kiểm tra
             render();
         } else {
             createToast(toastComponent(data.message || FAILED_OPERATION_MESSAGE, "danger"));
@@ -208,6 +210,7 @@ function render() {
                 const page = parseInt(e.target.getAttribute('data-page'));
                 if (!isNaN(page)) {
                     const selectedStatus = document.querySelector('input[name="statusFilter"]:checked').value;
+                    console.log("Selected status for pagination:", selectedStatus); // Thêm log
                     state.initState(selectedStatus, page);
                 }
             });
@@ -220,6 +223,7 @@ const statusFilters = document.querySelectorAll('input[name="statusFilter"]');
 statusFilters.forEach(filter => {
     filter.addEventListener('change', () => {
         const selectedStatus = document.querySelector('input[name="statusFilter"]:checked').value;
+        console.log("Selected status:", selectedStatus); // Thêm log
         state.initState(selectedStatus, 0);
     });
 });

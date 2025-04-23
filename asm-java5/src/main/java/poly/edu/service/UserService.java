@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
@@ -31,9 +32,12 @@ public class UserService {
 	HoaDonChiTietRepository hoaDonChiTietRepository;
 	@Autowired
 	HoaDonRepository hoaDonRepository;
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	public Users register(Users user) {
 		Optional<Users> existingUserById = usersRepository.findById(user.getIdUser());
+
 		if (existingUserById.isPresent()) {
 			throw new IllegalArgumentException("Email người dùng đã tồn tại!");
 		}
@@ -43,6 +47,9 @@ public class UserService {
 			throw new IllegalArgumentException("Số điện thoại đã được sử dụng!");
 		}
 		user.setVaitro(false);
+		String hashPassword = this.passwordEncoder.encode(user.getMatkhau());
+		user.setMatkhau(hashPassword);
+
 		usersRepository.save(user);
 
 		GioHang gioHang = new GioHang();
@@ -60,7 +67,8 @@ public class UserService {
 			user.setSdt(updatedUser.getSdt());
 			user.setHinh(updatedUser.getHinh());
 			user.setVaitro(updatedUser.isVaitro());
-			user.setMatkhau(updatedUser.getMatkhau());
+			String hassPassword = this.passwordEncoder.encode(updatedUser.getMatkhau());
+			user.setMatkhau(hassPassword);
 			return usersRepository.save(user);
 		} else {
 			throw new RuntimeException("Không tìm thấy người dùng!");
@@ -74,7 +82,7 @@ public class UserService {
 		}
 
 		Users user = userOptional.get();
-		if (!user.getMatkhau().equals(users.getMatkhau())) {
+		if (!passwordEncoder.matches(users.getMatkhau(), user.getMatkhau())) {
 			throw new IllegalArgumentException("Tài khoản hoặc mật khẩu không chính xác!");
 		}
 		session.setAttribute("currentUser", user);
@@ -105,5 +113,5 @@ public class UserService {
 		gioHangRepository.deleteByUserId(id);
 		usersRepository.deleteById(id);
 	}
-	
+
 }
